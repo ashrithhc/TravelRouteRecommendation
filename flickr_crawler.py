@@ -10,7 +10,7 @@ api_key = 'c55d1c61df96fedbc444f9fa487e2170'
 def crawl(flickr, conn, cursor, page_no):
 	try:
 		print "Page number " + str(page_no)
-		photos = flickr.photos_search(per_page='500', page=page_no, lat='28.6100', lon='77.2300', radius='32', extras='tags,geo')
+		photos = flickr.photos_search(per_page='500', page=page_no, lat='28.6100', lon='77.2300', radius='32', extras='tags,geo,date_taken')
 		root = photos
 		if type(photos) == type(' '):
 			root = ET.fromstring(photos)
@@ -36,11 +36,12 @@ def crawl(flickr, conn, cursor, page_no):
 				tags = tags.replace("'", "\\'")
 				tags = tags.replace("\"", "\\\"")
 				title = photo_attrib['title']
+				date_taken = photo_attrib['datetaken']
 				# query = "INSERT IGNORE INTO photos VALUES(\'" + photo_id + "\'"
 				# query += ", " + lat + ", " + lon + ", \'" + owner + "\', \'" + place_id + "\', \'" + secret + "\', \'" + tags + "\'"
 				# query += ", \'" + title + "\', NULL)"
-				values = (photo_id, lat, lon, owner, place_id, secret, tags, title)
-				query = "INSERT IGNORE INTO photos VALUES(%s, %s, %s, %s, %s, %s, %s, %s, NULL)"
+				values = (photo_id, lat, lon, owner, place_id, secret, tags, title, date_taken)
+				query = "INSERT IGNORE INTO photos VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, NULL)"
 				cursor.execute(query, values)
 				conn.commit()
 		
@@ -64,8 +65,8 @@ try:
 	cursor = conn.cursor()
 
 	flickr = flickrapi.FlickrAPI(api_key)
-	photos = flickr.photos_search(per_page='500', page='1', lat='28.6100', lon='77.2300', radius='32', extras='tags,geo')
-	# photos = flickr.photos_search(per_page='100', lat='28.6100', lon='77.2300', radius='32', extras='tags,geo', format='kdshfk')
+	photos = flickr.photos_search(per_page='500', page='1', lat='28.6100', lon='77.2300', radius='32', extras='tags,geo,date_taken')
+	# photos = flickr.photos_search(per_page='100', lat='28.6100', lon='77.2300', radius='32', extras='tags,geo,date_taken', format='kdshfk')
 	# print photos
 	# ET.dump(photos)
 	root = photos
@@ -94,19 +95,20 @@ try:
 			tags = tags.replace("'", "\\'")
 			tags = tags.replace("\"", "\\\"")
 			title = photo_attrib['title']
+			date_taken = photo_attrib['datetaken']
 			query = "INSERT IGNORE INTO photos VALUES(\'" + photo_id + "\'"
 			query += ", " + lat + ", " + lon + ", \'" + owner + "\', \'" + place_id + "\', \'" + secret + "\', \'" + tags + "\'"
-			query += ", \'" + title + "\', NULL)"
+			query += ", \'" + title + "\', \'" + date_taken + "\', NULL)"
 			cursor.execute(query)
 			conn.commit()
 
 		for page_no in range(2, no_of_pages+1):
 			crawl(flickr, conn, cursor, page_no)
 
-		query = "SELECT tags from photos where photo_id = \'15421970277\'"
-		cursor.execute(query)
-		for row in cursor:
-			print "\n\n" + row[0]
+		# query = "SELECT tags from photos where photo_id = \'15421970277\'"
+		# cursor.execute(query)
+		# for row in cursor:
+		# 	print "\n\n" + row[0]
 
 	
 	conn.close()
