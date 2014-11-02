@@ -1,8 +1,6 @@
-6094|travel favorite paris france nikon iledefrance d800 pontdesarts
-6095|paris france french nikon europe ag capitale nikkor francais hdr parisian anto d800 iledelacite xiii parisien cathedralenotredame casimodo antoxiii agphotographe
-6143|bw blackwhite noiretblanc pentax nb versailles pentaxk30
-6147|bw blackwhite noiretblanc pentax nb versailles pentaxk30
-6148|paris
-6151|paris notredame cathédrale notredamedeparis contreplongeons
-6152|square squareformat iphoneography instagramapp uploaded:by=instagram
-6169|square squareformat iphoneography instagramapp uploaded:by=instagram
+1|one two three four five six
+2|one two three four five seven
+3|one two three four eight nine
+4|one two three ten eleven twelve
+5|one two thirteen fourteen fifteen sixteen
+6|one seventeen eighteen nineteen twenty zero

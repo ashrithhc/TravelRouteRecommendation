@@ -29,14 +29,19 @@ def calc_tfidf():
 				yield dictionary.doc2bow(line.split('|')[1].lower().split())
 	tags_file = open('tags.txt','r')
 	dictionary = corpora.Dictionary(line.split('|')[1].lower().split() for line in tags_file)
-	print dictionary.token2id
+	# print dictionary[0]
 	print "\n\n"
 	corpus_obj = MyCorpus()
 	corpus = [vec for vec in corpus_obj]
 	tfidf = models.TfidfModel(corpus)
 	corpus_tfidf = tfidf[corpus]
+	i=1
 	for doc in corpus_tfidf:
-		print(doc)
+		print "\nDoc: " + str(i)
+		i += 1
+		for item in doc:
+			print "\t" + dictionary[item[0]] + ": " + str(item[1])
+
 	# for vec in corpus:
 	# 	print vec
 
