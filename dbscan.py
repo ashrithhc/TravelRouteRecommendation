@@ -46,8 +46,9 @@ class DBSCAN:
       if (not self.checkMembership(npoint_tmp)):  
         #if P' is not yet member of any cluster  
         self.cluster[self.cluster_inx].append(npoint_tmp)  
-      else:  
-        print npoint_tmp.show(), 'is belonged to some cluster'  
+      else:
+        pass  
+        # print npoint_tmp.show(), 'is belonged to some cluster'  
  
   def checkMembership(self, P):  
     #will return True if point is belonged to some cluster  
@@ -118,7 +119,7 @@ if __name__=='__main__':
     }
     conn = mysql.connector.connect(**mysql_config)
     cursor = conn.cursor()
-    query = "SELECT id,latitude,longitude FROM photos ORDER BY latitude,longitude LIMIT 100"
+    query = "SELECT photo_id,latitude,longitude FROM photos WHERE seed_location='6'"
     cursor.execute(query)
     rows = cursor.fetchall()
     locs = []
@@ -131,6 +132,7 @@ if __name__=='__main__':
     dbScan.DB = locs;  
     #Do clustering  
     dbScan.DBSCAN()  
+    print "\n\n"
     #Show result cluster
     print len(dbScan.cluster)
     for i in range(len(dbScan.cluster)):

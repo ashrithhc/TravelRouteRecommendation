@@ -105,6 +105,8 @@ try:
 	print "\nPage number 1"
 	#Delhi
 	# photos = flickr.photos_search(per_page='500', page='1', lat='28.6100', lon='77.2300', radius='32', extras='tags,geo,date_taken')
+	#Sydney (change bbox co-ordinates)
+	# photos = flickr.photos_search(per_page='500', page='1', bbox='-0.557531,51.264739,0.277430,51.675354', extras='tags,geo,date_taken')
 	#Paris
 	# photos = flickr.photos_search(per_page='500', page='1', lat='48.800928', lon='2.345324', radius='32', extras='tags,geo,date_taken')
 	#London
@@ -123,6 +125,8 @@ try:
 		print "\nPage number " + str(page_no)
 		#Delhi
 		# photos = flickr.photos_search(per_page='500', page='1', lat='28.38', lon='77.12', radius='32', extras='tags,geo,date_taken')
+		#Sydney (change bbox co-ordinates)
+		# photos = flickr.photos_search(per_page='500', page=page_no, bbox='-0.557531,51.264739,0.277430,51.675354', extras='tags,geo,date_taken')
 		#Paris
 		# photos = flickr.photos_search(per_page='500', page=page_no, lat='48.800928', lon='2.345324', radius='32', extras='tags,geo,date_taken')
 		#London
