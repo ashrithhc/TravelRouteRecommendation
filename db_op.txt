@@ -1,0 +1,75 @@
+37
+Cluster:  0
+3245
+Cluster:  1
+13
+Cluster:  2
+112
+Cluster:  3
+6
+Cluster:  4
+40
+Cluster:  5
+106
+Cluster:  6
+91
+Cluster:  7
+38
+Cluster:  8
+34
+Cluster:  9
+23
+Cluster:  10
+10
+Cluster:  11
+6
+Cluster:  12
+8
+Cluster:  13
+13
+Cluster:  14
+11
+Cluster:  15
+15
+Cluster:  16
+20
+Cluster:  17
+2
+Cluster:  18
+7
+Cluster:  19
+7
+Cluster:  20
+11
+Cluster:  21
+22
+Cluster:  22
+11
+Cluster:  23
+5
+Cluster:  24
+20
+Cluster:  25
+5
+Cluster:  26
+6
+Cluster:  27
+10
+Cluster:  28
+5
+Cluster:  29
+2
+Cluster:  30
+1
+Cluster:  31
+3
+Cluster:  32
+8
+Cluster:  33
+4
+Cluster:  34
+5
+Cluster:  35
+6
+Cluster:  36
+3
