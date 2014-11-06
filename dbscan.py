@@ -1,4 +1,4 @@
-from math import sqrt, pow, radians, cos, sin, asin, sqrt 
+from math import sqrt, pow, radians, cos, sin, asin, sqrt, log
 import mysql.connector
  
 class DBSCAN:  
@@ -6,8 +6,8 @@ class DBSCAN:
   def __init__(self):  
     self.name = 'DBSCAN'  
     self.DB = [] #Database  
-    self.esp = 1 #neighborhood distance for search  
-    self.MinPts = 5 #minimum number of points required to form a cluster  
+    self.esp = 0.1 #neighborhood distance for search  
+    self.MinPts = 20 #minimum number of points required to form a cluster  
     self.cluster_inx = -1  
     self.cluster = []  
      
@@ -97,8 +97,9 @@ class DBSCAN:
     return km
  
 class Location:  
-  def __init__(self,uid = 0, lat = 0, lon = 0, visited = False, isnoise = False):  
+  def __init__(self,uid = 0,owner = "", lat = 0, lon = 0, visited = False, isnoise = False):  
     self.id = uid
+    self.owner = owner
     self.lat = lat  
     self.lon = lon  
     self.visited = False  
@@ -119,12 +120,12 @@ if __name__=='__main__':
     }
     conn = mysql.connector.connect(**mysql_config)
     cursor = conn.cursor()
-    query = "SELECT photo_id,latitude,longitude FROM photos WHERE seed_location='6'"
+    query = "SELECT photo_id,photos.owner,latitude,longitude,tourist FROM photos,owner WHERE seed_location='6' AND owner.owner_id=photos.owner AND tags!=\"\" AND tourist=1"
     cursor.execute(query)
     rows = cursor.fetchall()
     locs = []
     for row in rows:
-      loc = Location(row[0],float(row[1]),float(row[2]))
+      loc = Location(row[0],row[1],float(row[2]),float(row[3]))
       locs.append(loc)
     #Create object
     dbScan = DBSCAN()  
@@ -136,8 +137,34 @@ if __name__=='__main__':
     #Show result cluster
     print len(dbScan.cluster)
     for i in range(len(dbScan.cluster)):
-      print 'Cluster: ', i
-      print len(dbScan.cluster[i])
+      # print 'Cluster: ', i
+      # print len(dbScan.cluster[i])
+      users = {}
+      lat_sum = 0
+      lon_sum = 0
+      for j in range(len(dbScan.cluster[i])):
+        point = dbScan.cluster[i][j]
+        lat_sum += point.lat
+        lon_sum += point.lon
+        query = "UPDATE temp SET cluster_info = \'" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
+        cursor.execute(query)
+        conn.commit()
+        N_photos = users.get(point.owner, 0)
+        users[point.owner] = N_photos + 1
+      content_score = 0.0
+      IC_users = ""
+      mean_lat = lat_sum/float(len(dbScan.cluster[i]))
+      mean_lon = lon_sum/float(len(dbScan.cluster[i]))
+      for user in users:
+        IC_user = log(users[user] + 1)
+        IC_users += (user+"="+str(IC_user)+";")
+        content_score += IC_user
+      N_user = len(users)
+      query = "INSERT INTO clusters(cluster_id,N_user,IC_user,content_score,latitude,longitude) VALUES (" + str(i+1)
+      query += "," + str(N_user) + ",%s," + str(content_score) + "," + str(mean_lat) + "," + str(mean_lon) + ")"
+      cursor.execute(query,(IC_users,))
+      conn.commit()
+
     # for i in range(len(dbScan.cluster)):  
     #   print 'Cluster: ', i  
     #   for j in range(len(dbScan.cluster[i])):  

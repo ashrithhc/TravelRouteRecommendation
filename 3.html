@@ -26,7 +26,7 @@ function initialize() {
   var map = new google.maps.Map(document.getElementById('map-canvas'),
       mapOptions);
 
-  var goldStar = {
+  var circle = {
     path: 'M-0.01,0a0.01,0.01 0 1,0 0.02,0a0.01,0.01 0 1,0 -0.02,0',
     fillColor: 'red',
     fillOpacity: 0.6,
@@ -37,7 +37,7 @@ function initialize() {
 
   var marker = new google.maps.Marker({
     position: map.getCenter(),
-    icon: goldStar,
+    icon: circle,
     map: map
   });
 

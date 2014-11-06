@@ -6,13 +6,14 @@ def get_tags(mysql_config):
 	try:
 		conn = mysql.connector.connect(**mysql_config)
 		cursor = conn.cursor()
-		query = "SELECT photo_id,tags FROM photos"
+		query = "SELECT photo_id,tags FROM temp"
 		cursor.execute(query)
 		rows = cursor.fetchall()
-		f = open('tags.txt','a')
+		f = open('tags.txt','w')
 		for row in rows:
-			text = str(row[0]) + "|" + row[1].encode('utf-8')
-			f.write(text + "\n")
+			if row[1]!="":
+				text = str(row[0]) + "|" + row[1].encode('utf-8')
+				f.write(text + "\n")
 		f.close()
 	except mysql.connector.Error as err:
 		print query
@@ -53,34 +54,41 @@ if __name__=='__main__':
 			'database': 'flickr',
 		}
 
-		# get_tags(mysql_config)
+		get_tags(mysql_config)
 		dictionary,corpus_tfidf = calc_tfidf()
-		for i in range(len(corpus_tfidf)):
-			print "\nDoc: " + str(i+1)
-			for item in corpus_tfidf[i]:
-				print "\t" + dictionary[item[0]] + ": " + str(item[1])
-
-		# tags_file = open('tags.txt','r')
-		# i=0
-		# for line in tags_file:
-		# 	photo_id = line.split('|')[0]
-		# 	tags = ""
+		# for i in range(len(corpus_tfidf)):
+		# 	print "\nDoc: " + str(i+1)
 		# 	for item in corpus_tfidf[i]:
-		# 		if item[1] > 0.2:
-		# 			tags += (dictionary[item[0]] + " ")
-		# 	query = "UPDATE temp SET tags=\'" + tags + "\' WHERE photo_id=\'" + photo_id + "\'"
-		# tags_file.close()
+		# 		print "\t" + dictionary[item[0]] + ": " + str(item[1])
 
-		print "\n"
-		i=1
-		for doc in corpus_tfidf:
-			print "\nDoc " + str(i) + ":",
-			i += 1
+		tags_file = open('tags.txt','r')
+		res_file = open('tags_res.txt','w')
+		i=0
+		for line in tags_file:
+			photo_id = line.split('|')[0]
 			tags = ""
-			for item in doc:
-				if item[1] > 0.2:
-					tags += (dictionary[item[0]] + " ")
-			print tags
+			for item in corpus_tfidf[i]:
+				if item[1] > 2:
+					tags += (dictionary[item[0]].encode('utf-8') + " ")
+			if tags!="":
+				res_file.write(photo_id+"|"+tags+"\n")
+			i+=1
+			# query = "UPDATE temp SET tags=\'" + tags + "\' WHERE photo_id=\'" + photo_id + "\'"
+			# cursor.execute(query)
+			# conn.commit()
+		tags_file.close()
+		res_file.close()
+
+		# print "\n"
+		# i=1
+		# for doc in corpus_tfidf:
+		# 	print "\nDoc " + str(i) + ":",
+		# 	i += 1
+		# 	tags = ""
+		# 	for item in doc:
+		# 		if item[1] > 1.58:
+		# 			tags += (dictionary[item[0]] + " ")
+		# 	print tags
 	except mysql.connector.Error as err:
 		print query
 		print(err)

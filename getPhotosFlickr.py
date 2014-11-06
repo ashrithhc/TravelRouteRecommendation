@@ -106,7 +106,7 @@ try:
 	#Delhi
 	# photos = flickr.photos_search(per_page='500', page='1', lat='28.6100', lon='77.2300', radius='32', extras='tags,geo,date_taken')
 	#Sydney (change bbox co-ordinates)
-	# photos = flickr.photos_search(per_page='500', page='1', bbox='-0.557531,51.264739,0.277430,51.675354', extras='tags,geo,date_taken')
+	photos = flickr.photos_search(per_page='500', page='1', bbox='151.115380,-33.946863,151.282921,-33.772384', extras='tags,geo,date_taken')
 	#Paris
 	# photos = flickr.photos_search(per_page='500', page='1', lat='48.800928', lon='2.345324', radius='32', extras='tags,geo,date_taken')
 	#London
@@ -117,16 +117,16 @@ try:
 	# photos = flickr.photos_search(per_page='500', page='1', lat='43.376026', lon='-75.669884', radius='32', extras='tags,geo,date_taken')
 	# photos = flickr.photos_search(per_page='500', page='1', bbox='-78.833947,42.084892,-73.736291,44.827551', extras='tags,geo,date_taken')
 	#San Francisco
-	photos = flickr.photos_search(per_page='500', page='1', bbox='-122.490128,37.722134,-122.416657,37.789994', extras='tags,geo,date_taken')
+	# photos = flickr.photos_search(per_page='500', page='1', bbox='-122.490128,37.722134,-122.416657,37.789994', extras='tags,geo,date_taken')
 	# photos = flickr.photos_search(per_page='500', page='1', lat='37.761229', lon='-122.444810', radius='32', extras='tags,geo,date_taken')
-	no_of_pages = populate_database(photos, conn, cursor, True, '6')
+	no_of_pages = populate_database(photos, conn, cursor, True, '1')
 
 	for page_no in range(2, no_of_pages+1):
 		print "\nPage number " + str(page_no)
 		#Delhi
 		# photos = flickr.photos_search(per_page='500', page='1', lat='28.38', lon='77.12', radius='32', extras='tags,geo,date_taken')
 		#Sydney (change bbox co-ordinates)
-		# photos = flickr.photos_search(per_page='500', page=page_no, bbox='-0.557531,51.264739,0.277430,51.675354', extras='tags,geo,date_taken')
+		photos = flickr.photos_search(per_page='500', page=page_no, bbox='151.115380,-33.946863,151.282921,-33.772384', extras='tags,geo,date_taken')
 		#Paris
 		# photos = flickr.photos_search(per_page='500', page=page_no, lat='48.800928', lon='2.345324', radius='32', extras='tags,geo,date_taken')
 		#London
@@ -137,9 +137,9 @@ try:
 		# photos = flickr.photos_search(per_page='500', page=page_no, lat='43.376026', lon='-75.669884', radius='32', extras='tags,geo,date_taken')
 		# photos = flickr.photos_search(per_page='500', page=page_no, bbox='-78.833947,42.084892,-73.736291,44.827551', extras='tags,geo,date_taken')
 		#San Francisco
-		photos = flickr.photos_search(per_page='500', page=page_no, bbox='-122.490128,37.722134,-122.416657,37.789994', extras='tags,geo,date_taken')
+		# photos = flickr.photos_search(per_page='500', page=page_no, bbox='-122.490128,37.722134,-122.416657,37.789994', extras='tags,geo,date_taken')
 		# photos = flickr.photos_search(per_page='500', page=page_no, lat='37.761229', lon='-122.444810', radius='32', extras='tags,geo,date_taken')
-		populate_database(photos, conn, cursor, False, '6')
+		populate_database(photos, conn, cursor, False, '1')
 			
 	conn.close()
 	
