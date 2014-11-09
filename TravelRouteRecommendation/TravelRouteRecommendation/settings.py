@@ -62,7 +62,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'flickr',
         'USER': 'root',
-        'PASSWORD': 'password',
+        'PASSWORD': 'nopassword',
         'HOST': '127.0.0.1',
         'PORT': '',
     }
