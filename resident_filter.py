@@ -31,7 +31,7 @@ def entropy_filtering():
 				continue
 			total = 0
 			for dt in dates:
-				if(dt!='NULL'):
+				if(dt!='NULL' and dt[0].year>=1990):
 					_date = dt[0].strftime("%Y-%m-%d %H:%M:%S")
 					mon = _date[:7]
 					# day = _date[8:10]

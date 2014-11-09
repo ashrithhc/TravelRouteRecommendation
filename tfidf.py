@@ -2,11 +2,15 @@ import mysql.connector
 from gensim import corpora, models
 import os
 
-def get_tags(mysql_config):
+def get_tags(conn, cursor):
 	try:
-		conn = mysql.connector.connect(**mysql_config)
-		cursor = conn.cursor()
-		query = "SELECT photo_id,tags FROM temp"
+		# query = "SELECT photo_id,tags FROM photos,owner WHERE seed_location='1' AND owner.owner_id=photos.owner AND tags!=\"\" AND tourist=1"
+		query = "SELECT photo_id,tags FROM sydney"
+		# query = "SELECT photo_id,tags FROM paris"
+		# query = "SELECT photo_id,tags FROM london"
+		# query = "SELECT photo_id,tags FROM singapore"
+		# query = "SELECT photo_id,tags FROM newyork"
+		# query = "SELECT photo_id,tags FROM sanfrancisco"
 		cursor.execute(query)
 		rows = cursor.fetchall()
 		f = open('tags.txt','w')
@@ -15,6 +19,8 @@ def get_tags(mysql_config):
 				text = str(row[0]) + "|" + row[1].encode('utf-8')
 				f.write(text + "\n")
 		f.close()
+		# cursor.close()
+		# conn.close()
 	except mysql.connector.Error as err:
 		print query
 		print(err)
@@ -54,7 +60,25 @@ if __name__=='__main__':
 			'database': 'flickr',
 		}
 
-		get_tags(mysql_config)
+		conn = mysql.connector.connect(**mysql_config)
+		cursor = conn.cursor()
+
+		# get_tags(conn,cursor)
+		# query = "SELECT photo_id,tags FROM sydney"
+		# query = "SELECT photo_id,tags FROM paris"
+		# query = "SELECT photo_id,tags FROM london"
+		# query = "SELECT photo_id,tags FROM singapore"
+		# query = "SELECT photo_id,tags FROM newyork"
+		query = "SELECT photo_id,tags FROM sanfrancisco"
+		cursor.execute(query)
+		rows = cursor.fetchall()
+		f = open('tags.txt','w')
+		for row in rows:
+			if row[1]!="":
+				text = str(row[0]) + "|" + row[1].encode('utf-8')
+				f.write(text + "\n")
+		f.close()
+		
 		dictionary,corpus_tfidf = calc_tfidf()
 		# for i in range(len(corpus_tfidf)):
 		# 	print "\nDoc: " + str(i+1)
@@ -73,10 +97,16 @@ if __name__=='__main__':
 			if tags!="":
 				res_file.write(photo_id+"|"+tags+"\n")
 			i+=1
-			# query = "UPDATE temp SET tags=\'" + tags + "\' WHERE photo_id=\'" + photo_id + "\'"
-			# cursor.execute(query)
-			# conn.commit()
+			# query = "UPDATE sydney SET tags=\'" + tags + "\' WHERE photo_id=\'" + photo_id + "\'"
+			# query = "UPDATE paris SET tags=\'" + tags + "\' WHERE photo_id=\'" + photo_id + "\'"
+			# query = "UPDATE london SET tags=\'" + tags + "\' WHERE photo_id=\'" + photo_id + "\'"
+			# query = "UPDATE singapore SET tags=\'" + tags + "\' WHERE photo_id=\'" + photo_id + "\'"
+			# query = "UPDATE newyork SET tags=\'" + tags + "\' WHERE photo_id=\'" + photo_id + "\'"
+			query = "UPDATE sanfrancisco SET tags=\'" + tags + "\' WHERE photo_id=\'" + photo_id + "\'"
+			cursor.execute(query)
+			conn.commit()
 		tags_file.close()
+		conn.close()
 		res_file.close()
 
 		# print "\n"

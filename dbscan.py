@@ -120,7 +120,13 @@ if __name__=='__main__':
     }
     conn = mysql.connector.connect(**mysql_config)
     cursor = conn.cursor()
-    query = "SELECT photo_id,photos.owner,latitude,longitude,tourist FROM photos,owner WHERE seed_location='6' AND owner.owner_id=photos.owner AND tags!=\"\" AND tourist=1"
+    # query = "SELECT photo_id,photos.owner,latitude,longitude,tourist FROM photos,owner WHERE seed_location='6' AND owner.owner_id=photos.owner AND tags!=\"\" AND tourist=1"
+    # query = "SELECT photo_id,owner,latitude,longitude FROM sydney WHERE tags!=\"\""
+    # query = "SELECT photo_id,owner,latitude,longitude FROM paris WHERE tags!=\"\""
+    # query = "SELECT photo_id,owner,latitude,longitude FROM london WHERE tags!=\"\""
+    # query = "SELECT photo_id,owner,latitude,longitude FROM singapore WHERE tags!=\"\""
+    # query = "SELECT photo_id,owner,latitude,longitude FROM newyork WHERE tags!=\"\""
+    query = "SELECT photo_id,owner,latitude,longitude FROM sanfrancisco WHERE tags!=\"\""
     cursor.execute(query)
     rows = cursor.fetchall()
     locs = []
@@ -146,7 +152,12 @@ if __name__=='__main__':
         point = dbScan.cluster[i][j]
         lat_sum += point.lat
         lon_sum += point.lon
-        query = "UPDATE temp SET cluster_info = \'" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
+        # query = "UPDATE sydney SET cluster_info = \'1" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
+        # query = "UPDATE paris SET cluster_info = \'2" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
+        # query = "UPDATE london SET cluster_info = \'3" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
+        # query = "UPDATE singapore SET cluster_info = \'4" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
+        # query = "UPDATE newyork SET cluster_info = \'5" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
+        query = "UPDATE sanfrancisco SET cluster_info = \'6" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
         cursor.execute(query)
         conn.commit()
         N_photos = users.get(point.owner, 0)
@@ -160,7 +171,7 @@ if __name__=='__main__':
         IC_users += (user+"="+str(IC_user)+";")
         content_score += IC_user
       N_user = len(users)
-      query = "INSERT INTO clusters(cluster_id,N_user,IC_user,content_score,latitude,longitude) VALUES (" + str(i+1)
+      query = "INSERT INTO clusters(cluster_id,N_user,IC_user,content_score,latitude,longitude) VALUES (6" + str(i+1)
       query += "," + str(N_user) + ",%s," + str(content_score) + "," + str(mean_lat) + "," + str(mean_lon) + ")"
       cursor.execute(query,(IC_users,))
       conn.commit()
@@ -174,3 +185,5 @@ if __name__=='__main__':
     print(err)
   except Exception as e:
     print(e)
+  finally:
+    conn.close()

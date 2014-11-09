@@ -12,9 +12,11 @@
         <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
         <script>
             function initialize() {
+                alert({{ map_center.latitude }} + "," + {{ map_center.longitude }});
                 var mapOptions = {
-                    zoom: 13,
-                    center: new google.maps.LatLng(37.761229,-122.444810)
+                    zoom: 2,
+                    center: new google.maps.LatLng({{ map_center.latitude }},{{ map_center.longitude }})
+{#                    center: new google.maps.LatLng(37.761229,-122.444810)#}
                 };
 
                 var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
@@ -29,10 +31,11 @@
                     strokeOpacity: 0.8
                 };
 
-                var colors = ['red','yellow','blue','black','green','purple','pink','grey','violet','orange'];
+{#                var colors = ['red','yellow','blue','black','green','purple','pink','grey','violet','orange'];#}
                 var i = 0;
                 {% for cluster in clusters %}
-                    circle['strokeColor'] = colors[i];
+                    circle['strokeColor'] = "{{ cluster.color }}";
+{#                    alert("{{ cluster.color }}");#}
                     {% for point in cluster.cluster_points %}
                         var pt = new google.maps.LatLng({{ point.latitude}}, {{ point.longitude }});
                         var marker = new google.maps.Marker({
@@ -42,6 +45,9 @@
                         });
                     {% endfor %}
                     i+=1;
+                    if(i==10) {
+                        i=0;
+                    }
                 {% endfor %}
                 
                 

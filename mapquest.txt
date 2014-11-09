@@ -1,0 +1,56 @@
+{
+    "info": {
+        "copyright": {
+            "imageAltText": "\u00a9 2014 MapQuest, Inc.", 
+            "imageUrl": "http://api.mqcdn.com/res/mqlogo.gif", 
+            "text": "\u00a9 2014 MapQuest, Inc."
+        }, 
+        "messages": [], 
+        "statuscode": 0
+    }, 
+    "options": {
+        "ignoreLatLngInput": false, 
+        "maxResults": -1, 
+        "thumbMaps": true
+    }, 
+    "results": [
+        {
+            "locations": [
+                {
+                    "adminArea1": "US", 
+                    "adminArea1Type": "Country", 
+                    "adminArea3": "PA", 
+                    "adminArea3Type": "State",  
+                    "adminArea5": "Lancaster", 
+                    "adminArea5Type": "City", 
+                    "displayLatLng": {
+                        "lat": 40.053234, 
+                        "lng": -76.313268
+                    }, 
+                    "dragPoint": false, 
+                    "geocodeQuality": "ADDRESS", 
+                    "geocodeQualityCode": "L1AAA", 
+                    "latLng": {
+                        "lat": 40.053116, 
+                        "lng": -76.313603
+                    }, 
+                    "linkId": 0, 
+                    "mapUrl": "http://open.mapquestapi.com/staticmap/v4/getmap?key=Fmjtd|luurn96z20,7x=o5-9w8a5u&type=map&size=225,160&pois=purple-1,40.053116,-76.313603,0,0|&center=40.053116,-76.313603&zoom=15&rand=1634589923", 
+                    "postalCode": "17603", 
+                    "sideOfStreet": "N", 
+                    "street": "254 Lincoln Avenue", 
+                    "type": "s"
+                }
+            ], 
+            "providedLocation": {
+                "latLng": {
+                    "lat": 40.053116, 
+                    "lng": -76.313603
+                }
+            }
+        }
+    ]
+}
+
+
+
