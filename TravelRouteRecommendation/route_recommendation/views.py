@@ -17,14 +17,14 @@ def to_address(lat, lon):
 
     decode = requests.get(url).json()
 
-    country = decode["results"][0]["locations"][0]["adminArea1"].encode()
-    state = decode["results"][0]["locations"][0]["adminArea3"].encode()
-    county = decode["results"][0]["locations"][0]["adminArea4"].encode()
-    city = decode["results"][0]["locations"][0]["adminArea5"].encode()
+    country = decode["results"][0]["locations"][0]["adminArea1"].encode('utf-8')
+    state = decode["results"][0]["locations"][0]["adminArea3"].encode('utf-8')
+    county = decode["results"][0]["locations"][0]["adminArea4"].encode('utf-8')
+    city = decode["results"][0]["locations"][0]["adminArea5"].encode('utf-8')
 
-    postalcode = decode["results"][0]["locations"][0]["postalCode"].encode()
-    sideofstreet = decode["results"][0]["locations"][0]["sideOfStreet"].encode()
-    street = decode["results"][0]["locations"][0]["street"].encode()
+    postalcode = decode["results"][0]["locations"][0]["postalCode"].encode('utf-8')
+    sideofstreet = decode["results"][0]["locations"][0]["sideOfStreet"].encode('utf-8')
+    street = decode["results"][0]["locations"][0]["street"].encode('utf-8')
 
     Address = street + ', ' + sideofstreet + ', ' + city + ', ' + county + ', ' + state + ', ' + country + ', ' + postalcode
 
@@ -34,13 +34,14 @@ def to_address(lat, lon):
 def extract_landmarks(request, location='1'):
     mysql_config = {
         'user': 'root',
-        'password': 'nopassword',
+        'password': 'password',
         'host': '127.0.0.1',
         'database': 'flickr',
     }
     conn = mysql.connector.connect(**mysql_config)
     cursor = conn.cursor(cursor_class=MySQLCursorDict)
     query = "SELECT * FROM clusters WHERE content_score >= 8"
+    # query = "SELECT * FROM clusters WHERE ((cluster_id>=11 and cluster_id <=19) or (cluster_id >=100 and cluster_id <200)) and content_score >= 8"
     cursor.execute(query)
     rows = cursor.fetchall()
     if not rows:
