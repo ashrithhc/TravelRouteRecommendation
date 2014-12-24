@@ -3,32 +3,50 @@ from django.http import HttpResponse
 import mysql.connector
 import requests
 from mysql.connector.cursor import MySQLCursorDict
+import json
 
 
 def index(request):
     return HttpResponse("Hello, world. You're at the home page.")
 
-def to_address(lat, lon):
-    url = "http://open.mapquestapi.com/geocoding/v1/reverse?key=Fmjtd%7Cluurn96z20%2C7x%3Do5-9w8a5u&location="
-    # lat = 40.053116
-    # lon = -76.313603
+# def to_address(lat, lon):
+def to_address():
+    mysql_config = {
+        'user': 'root',
+        'password': 'password',
+        'host': '127.0.0.1',
+        'database': 'flickr',
+    }
+    conn = mysql.connector.connect(**mysql_config)
+    cursor = conn.cursor(cursor_class=MySQLCursorDict)
+    query = "SELECT * FROM clusters"
+    cursor.execute(query)
 
-    url = url + str(lat) + "," + str(lon)
+    rows = cursor.fetchall()
+    for row in rows:
+    	lat = row['latitude']
+    	lon = row['longitude']
+    	url = "http://open.mapquestapi.com/geocoding/v1/reverse?key=Fmjtd%7Cluurn96z20%2C7x%3Do5-9w8a5u&location="
+    	url = url + str(lat) + "," + str(lon)
+    	decode = requests.get(url).json()
+    	print json.dumps(decode, indent=4, sort_keys=True)
+    	results = decode["results"]
+    	if results and len(results)>0:
+    		if results[0]["locations"]:
+		    	country = results[0]["locations"][0]["adminArea1"].encode('utf-8')
+		    	state = results[0]["locations"][0]["adminArea3"].encode('utf-8')
+		    	county = results[0]["locations"][0]["adminArea4"].encode('utf-8')
+		    	city = results[0]["locations"][0]["adminArea5"].encode('utf-8')
+		    	postalcode = results[0]["locations"][0]["postalCode"].encode('utf-8')
+		    	sideofstreet = results[0]["locations"][0]["sideOfStreet"].encode('utf-8')
+		    	street = results[0]["locations"][0]["street"].encode('utf-8')
+		    	Address = street + ', ' + sideofstreet + ', ' + city + ', ' + county + ', ' + state + ', ' + country + ', ' + postalcode
 
-    decode = requests.get(url).json()
-
-    country = decode["results"][0]["locations"][0]["adminArea1"].encode('utf-8')
-    state = decode["results"][0]["locations"][0]["adminArea3"].encode('utf-8')
-    county = decode["results"][0]["locations"][0]["adminArea4"].encode('utf-8')
-    city = decode["results"][0]["locations"][0]["adminArea5"].encode('utf-8')
-
-    postalcode = decode["results"][0]["locations"][0]["postalCode"].encode('utf-8')
-    sideofstreet = decode["results"][0]["locations"][0]["sideOfStreet"].encode('utf-8')
-    street = decode["results"][0]["locations"][0]["street"].encode('utf-8')
-
-    Address = street + ', ' + sideofstreet + ', ' + city + ', ' + county + ', ' + state + ', ' + country + ', ' + postalcode
-
-    return Address
+    	query = "UPDATE clusters SET address = %s WHERE cluster_id = %s"
+    	cursor.execute(query, (Address,row['cluster_id']))
+    	conn.commit()
+    conn.close()
+    # return Address
 
 
 def extract_landmarks(request, location='1'):
@@ -65,9 +83,15 @@ def extract_landmarks(request, location='1'):
             'latitude': row['latitude'],
             'longitude': row['longitude']
         }
-        cluster_address = to_address(cluster_loc['latitude'], cluster_loc['longitude'])
+        # cluster_address = to_address(cluster_loc['latitude'], cluster_loc['longitude'])
+        cluster_address = row['address']
         cluster_points = []
         points = []
+        query = "select * from london where cluster_info=%s"
+        cursor.execute(query, (cluster_no,))
+        result = cursor.fetchall()
+        if result:
+            points.extend(result)
         query = "select * from sydney where cluster_info=%s"
         cursor.execute(query, (cluster_no,))
         result = cursor.fetchall()
@@ -78,11 +102,7 @@ def extract_landmarks(request, location='1'):
         result = cursor.fetchall()
         if result:
             points.extend(result)
-        query = "select * from london where cluster_info=%s"
-        cursor.execute(query, (cluster_no,))
-        result = cursor.fetchall()
-        if result:
-            points.extend(result)
+
         query = "select * from singapore where cluster_info=%s"
         cursor.execute(query, (cluster_no,))
         result = cursor.fetchall()
