@@ -1,0 +1,23 @@
+1. Sydney:
+Normal DBSCAN - 67.6934249401 seconds
+DBSCAN with Rtree - 24.3842549324 seconds
+
+2. Paris:
+Normal DBSCAN - 53.4362249374 seconds
+DBSCAN with Rtree - 18.8867619038 seconds
+
+3. London:
+Normal DBSCAN - 115.611106873 seconds
+DBSCAN with Rtree - 37.9733960629 seconds
+
+4. Singapore:
+Normal DBSCAN - 25.7072460651 seconds
+DBSCAN with Rtree - 3.56073904037 seconds
+
+5. New York:
+Normal DBSCAN - 71.8060979843 seconds
+DBSCAN with Rtree - 14.2089719772 seconds
+
+6. San Francisco:
+Normal DBSCAN - 195.035374165 seconds
+DBSCAN with Rtree - 57.2095239162 seconds

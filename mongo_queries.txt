@@ -1,0 +1,11 @@
+db.photos.find().forEach( function(e) { db.photos.update({_id: e._id}, {$set: {"geo_location":{type:"Point",coordinates:[parseFloat(e.longitude),parseFloat(e.latitude)]}}}); } );
+
+db.photos.ensureIndex({geo_location: "2dsphere"})
+
+db.photos.find({
+	geo_location: {
+		$geoWithin: {
+			$centerSphere: [[-122.45928,37.771491], 0.1/6371]
+		}
+	}
+})

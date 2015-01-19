@@ -1,5 +1,8 @@
 from math import sqrt, pow, radians, cos, sin, asin, sqrt, log
 import mysql.connector
+from pymongo import MongoClient
+import time
+
  
 class DBSCAN:  
 #Density-Based Spatial Clustering of Application with Noise -> http://en.wikipedia.org/wiki/DBSCAN  
@@ -21,7 +24,7 @@ class DBSCAN:
         if(len(NeighborPts) < self.MinPts):  
           #that point is a noise  
           p_tmp.isnoise = True  
-          print p_tmp.show(), 'is a noise'  
+          # print p_tmp.show(), 'is a noise'  
         else:  
           self.cluster.append([])  
           self.cluster_inx = self.cluster_inx + 1  
@@ -60,7 +63,7 @@ class DBSCAN:
     return ismember  
      
   def regionQuery(self, P):  
-  #return all points within P's eps-neighborhood, except itself  
+  #return all points within P's eps-neighborhood, except itself 
     pointInRegion = []  
     for i in range(len(self.DB)):  
       p_tmp = self.DB[i]  
@@ -112,7 +115,7 @@ if __name__=='__main__':
   #this is a mocking data just for test
   # vecPoint = [Point(100,50), Point(11,3), Point(10,4), Point(11,5), Point(12,4), Point(13,5), Point(12,6), Point(6,10), Point(8,10), Point(5,12), Point(7,12)]  
   try:
-    mysql_config = {
+    '''mysql_config = {
       'user': 'root',
       'password': 'password',
       'host': '127.0.0.1',
@@ -132,17 +135,40 @@ if __name__=='__main__':
     locs = []
     for row in rows:
       loc = Location(row[0],row[1],float(row[2]),float(row[3]))
+      locs.append(loc)'''
+
+    client = MongoClient()
+    db = client.flickr
+    _photos = db.photos
+    _location = db.seed_location
+
+    city = 6
+
+    photos = _photos.find({"$and": [{"seed_location": city}, {"tags": {"$ne": ""}}]})
+    location = _location.find({"location_id": city})
+    seed_location = location[0]['name']
+    print "Location: " + seed_location
+
+    locs = []
+    for photo in photos:
+      loc = Location(photo['photo_id'], photo['owner'], float(photo['latitude']),float(photo['longitude']))
       locs.append(loc)
+
     #Create object
     dbScan = DBSCAN()  
     #Load data into object
-    dbScan.DB = locs;  
+    dbScan.DB = locs; 
+    #Start time of clustering
+    start_time = time.time() 
     #Do clustering  
-    dbScan.DBSCAN()  
-    print "\n\n"
+    dbScan.DBSCAN()
+    #End time of clustering
+    print "Time taken for normal DBSCAN: %s seconds." % (time.time()-start_time)
     #Show result cluster
-    print len(dbScan.cluster)
-    for i in range(len(dbScan.cluster)):
+    print "Number of clusters: %s" %str(len(dbScan.cluster))
+    
+
+    '''for i in range(len(dbScan.cluster)):
       # print 'Cluster: ', i
       # print len(dbScan.cluster[i])
       users = {}
@@ -174,7 +200,7 @@ if __name__=='__main__':
       query = "INSERT INTO clusters(cluster_id,N_user,IC_user,content_score,latitude,longitude) VALUES (6" + str(i+1)
       query += "," + str(N_user) + ",%s," + str(content_score) + "," + str(mean_lat) + "," + str(mean_lon) + ")"
       cursor.execute(query,(IC_users,))
-      conn.commit()
+      conn.commit()'''
 
     # for i in range(len(dbScan.cluster)):  
     #   print 'Cluster: ', i  
@@ -185,5 +211,5 @@ if __name__=='__main__':
     print(err)
   except Exception as e:
     print(e)
-  finally:
-    conn.close()
+  # finally:
+  #   conn.close()
