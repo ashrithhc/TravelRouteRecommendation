@@ -142,7 +142,7 @@ if __name__=='__main__':
     _photos = db.photos
     _location = db.seed_location
 
-    city = 6
+    city = 4
 
     photos = _photos.find({"$and": [{"seed_location": city}, {"tags": {"$ne": ""}}]})
     location = _location.find({"location_id": city})
@@ -168,39 +168,39 @@ if __name__=='__main__':
     print "Number of clusters: %s" %str(len(dbScan.cluster))
     
 
-    '''for i in range(len(dbScan.cluster)):
-      # print 'Cluster: ', i
-      # print len(dbScan.cluster[i])
-      users = {}
-      lat_sum = 0
-      lon_sum = 0
-      for j in range(len(dbScan.cluster[i])):
-        point = dbScan.cluster[i][j]
-        lat_sum += point.lat
-        lon_sum += point.lon
-        # query = "UPDATE sydney SET cluster_info = \'1" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
-        # query = "UPDATE paris SET cluster_info = \'2" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
-        # query = "UPDATE london SET cluster_info = \'3" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
-        # query = "UPDATE singapore SET cluster_info = \'4" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
-        # query = "UPDATE newyork SET cluster_info = \'5" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
-        query = "UPDATE sanfrancisco SET cluster_info = \'6" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
-        cursor.execute(query)
-        conn.commit()
-        N_photos = users.get(point.owner, 0)
-        users[point.owner] = N_photos + 1
-      content_score = 0.0
-      IC_users = ""
-      mean_lat = lat_sum/float(len(dbScan.cluster[i]))
-      mean_lon = lon_sum/float(len(dbScan.cluster[i]))
-      for user in users:
-        IC_user = log(users[user] + 1)
-        IC_users += (user+"="+str(IC_user)+";")
-        content_score += IC_user
-      N_user = len(users)
-      query = "INSERT INTO clusters(cluster_id,N_user,IC_user,content_score,latitude,longitude) VALUES (6" + str(i+1)
-      query += "," + str(N_user) + ",%s," + str(content_score) + "," + str(mean_lat) + "," + str(mean_lon) + ")"
-      cursor.execute(query,(IC_users,))
-      conn.commit()'''
+    # for i in range(len(dbScan.cluster)):
+    #   # print 'Cluster: ', i
+    #   # print len(dbScan.cluster[i])
+    #   users = {}
+    #   lat_sum = 0
+    #   lon_sum = 0
+    #   for j in range(len(dbScan.cluster[i])):
+    #     point = dbScan.cluster[i][j]
+    #     lat_sum += point.lat
+    #     lon_sum += point.lon
+    #     # query = "UPDATE sydney SET cluster_info = \'1" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
+    #     # query = "UPDATE paris SET cluster_info = \'2" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
+    #     # query = "UPDATE london SET cluster_info = \'3" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
+    #     # query = "UPDATE singapore SET cluster_info = \'4" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
+    #     # query = "UPDATE newyork SET cluster_info = \'5" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
+    #     query = "UPDATE sanfrancisco SET cluster_info = \'6" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
+    #     cursor.execute(query)
+    #     conn.commit()
+    #     N_photos = users.get(point.owner, 0)
+    #     users[point.owner] = N_photos + 1
+    #   content_score = 0.0
+    #   IC_users = ""
+    #   mean_lat = lat_sum/float(len(dbScan.cluster[i]))
+    #   mean_lon = lon_sum/float(len(dbScan.cluster[i]))
+    #   for user in users:
+    #     IC_user = log(users[user] + 1)
+    #     IC_users += (user+"="+str(IC_user)+";")
+    #     content_score += IC_user
+    #   N_user = len(users)
+    #   query = "INSERT INTO clusters(cluster_id,N_user,IC_user,content_score,latitude,longitude) VALUES (6" + str(i+1)
+    #   query += "," + str(N_user) + ",%s," + str(content_score) + "," + str(mean_lat) + "," + str(mean_lon) + ")"
+    #   cursor.execute(query,(IC_users,))
+    #   conn.commit()
 
     # for i in range(len(dbScan.cluster)):  
     #   print 'Cluster: ', i  
