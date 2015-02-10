@@ -11,3 +11,5 @@ db.photos.find({
 		}
 	}
 })
+
+db.clusters.find({$and:[{"cluster_id":/^1.*/},{"content_score":{$gte:8}}]}).count()

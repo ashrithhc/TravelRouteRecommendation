@@ -115,32 +115,12 @@ if __name__=='__main__':
   #this is a mocking data just for test
   # vecPoint = [Point(100,50), Point(11,3), Point(10,4), Point(11,5), Point(12,4), Point(13,5), Point(12,6), Point(6,10), Point(8,10), Point(5,12), Point(7,12)]  
   try:
-    '''mysql_config = {
-      'user': 'root',
-      'password': 'password',
-      'host': '127.0.0.1',
-      'database': 'flickr',
-    }
-    conn = mysql.connector.connect(**mysql_config)
-    cursor = conn.cursor()
-    # query = "SELECT photo_id,photos.owner,latitude,longitude,tourist FROM photos,owner WHERE seed_location='6' AND owner.owner_id=photos.owner AND tags!=\"\" AND tourist=1"
-    # query = "SELECT photo_id,owner,latitude,longitude FROM sydney WHERE tags!=\"\""
-    # query = "SELECT photo_id,owner,latitude,longitude FROM paris WHERE tags!=\"\""
-    # query = "SELECT photo_id,owner,latitude,longitude FROM london WHERE tags!=\"\""
-    # query = "SELECT photo_id,owner,latitude,longitude FROM singapore WHERE tags!=\"\""
-    # query = "SELECT photo_id,owner,latitude,longitude FROM newyork WHERE tags!=\"\""
-    query = "SELECT photo_id,owner,latitude,longitude FROM sanfrancisco WHERE tags!=\"\""
-    cursor.execute(query)
-    rows = cursor.fetchall()
-    locs = []
-    for row in rows:
-      loc = Location(row[0],row[1],float(row[2]),float(row[3]))
-      locs.append(loc)'''
 
     client = MongoClient()
     db = client.flickr
     _photos = db.photos
     _location = db.seed_location
+    _clusters = db.clusters
 
     city = 4
 
@@ -168,48 +148,44 @@ if __name__=='__main__':
     print "Number of clusters: %s" %str(len(dbScan.cluster))
     
 
-    # for i in range(len(dbScan.cluster)):
-    #   # print 'Cluster: ', i
-    #   # print len(dbScan.cluster[i])
-    #   users = {}
-    #   lat_sum = 0
-    #   lon_sum = 0
-    #   for j in range(len(dbScan.cluster[i])):
-    #     point = dbScan.cluster[i][j]
-    #     lat_sum += point.lat
-    #     lon_sum += point.lon
-    #     # query = "UPDATE sydney SET cluster_info = \'1" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
-    #     # query = "UPDATE paris SET cluster_info = \'2" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
-    #     # query = "UPDATE london SET cluster_info = \'3" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
-    #     # query = "UPDATE singapore SET cluster_info = \'4" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
-    #     # query = "UPDATE newyork SET cluster_info = \'5" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
-    #     query = "UPDATE sanfrancisco SET cluster_info = \'6" + str(i+1) + "\' WHERE photo_id = \'" + point.id + "\'"
-    #     cursor.execute(query)
-    #     conn.commit()
-    #     N_photos = users.get(point.owner, 0)
-    #     users[point.owner] = N_photos + 1
-    #   content_score = 0.0
-    #   IC_users = ""
-    #   mean_lat = lat_sum/float(len(dbScan.cluster[i]))
-    #   mean_lon = lon_sum/float(len(dbScan.cluster[i]))
-    #   for user in users:
-    #     IC_user = log(users[user] + 1)
-    #     IC_users += (user+"="+str(IC_user)+";")
-    #     content_score += IC_user
-    #   N_user = len(users)
-    #   query = "INSERT INTO clusters(cluster_id,N_user,IC_user,content_score,latitude,longitude) VALUES (6" + str(i+1)
-    #   query += "," + str(N_user) + ",%s," + str(content_score) + "," + str(mean_lat) + "," + str(mean_lon) + ")"
-    #   cursor.execute(query,(IC_users,))
-    #   conn.commit()
+    for i in range(len(dbScan.cluster)):
+      users = {}
+      lat_sum = 0
+      lon_sum = 0
+      cluster_info = str(city)+str(i+1)
+      for j in range(len(dbScan.cluster[i])):
+        point = dbScan.cluster[i][j]
+        lat_sum += point.lat
+        lon_sum += point.lon
+        
+        _photos.update({"photo_id":point.id},{"$set":{"cluster_info":cluster_info}})
 
-    # for i in range(len(dbScan.cluster)):  
-    #   print 'Cluster: ', i  
-    #   for j in range(len(dbScan.cluster[i])):  
-    #     print dbScan.cluster[i][j].show()
-  except mysql.connector.Error as err:
-    print query
-    print(err)
+        N_photos = users.get(point.owner, 0)
+        users[point.owner] = N_photos + 1
+
+      content_score = 0.0
+      IC_users = ""
+      mean_lat = lat_sum/float(len(dbScan.cluster[i]))
+      mean_lon = lon_sum/float(len(dbScan.cluster[i]))
+
+      for user in users:
+        IC_user = log(users[user] + 1)
+        IC_users += (user+"="+str(IC_user)+";")
+        content_score += IC_user
+      N_user = len(users)
+
+      cluster_document = {
+        "cluster_id": cluster_info,
+        "N_user": N_user,
+        "IC_user": IC_users,
+        "content_score": content_score,
+        "latitude": mean_lat,
+        "longitude": mean_lon,
+        "address": ""
+      }
+      _clusters.insert(cluster_document)
+
+    client.close()
+
   except Exception as e:
     print(e)
-  # finally:
-  #   conn.close()
