@@ -36,9 +36,10 @@
                             position: pt,
                             icon: circle,
                             map: map,
-                            title: "{{ cluster.cluster_address }}"
+{#                            title: "{{ cluster.cluster_address }}"#}
+                            title: "{{ cluster.rank }}"
                         });
-                        marker.html = "<p>{{ cluster.cluster_address }}</p>";
+                        marker.html = "<p>Rank: {{ cluster.rank }}</p>";
                         var infowindow = new google.maps.InfoWindow({
                             content: ""
                         });

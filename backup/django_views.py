@@ -4,7 +4,6 @@ import mysql.connector
 import requests
 from mysql.connector.cursor import MySQLCursorDict
 import json
-from pymongo import MongoClient
 
 
 def index(request):
@@ -51,15 +50,20 @@ def to_address():
 
 
 def extract_landmarks(request, location='1'):
-    client = MongoClient()
-    db = client.flickr
-    clustersCollection = db.clusters
-    photosCollection = db.photos
-    _clusters = clustersCollection.find({"content_score": {"$gte": 8}})
-
-    if _clusters.count() == 0:
+    mysql_config = {
+        'user': 'root',
+        'password': 'password',
+        'host': '127.0.0.1',
+        'database': 'flickr',
+    }
+    conn = mysql.connector.connect(**mysql_config)
+    cursor = conn.cursor(cursor_class=MySQLCursorDict)
+    query = "SELECT * FROM clusters WHERE content_score >= 8"
+    # query = "SELECT * FROM clusters WHERE ((cluster_id>=11 and cluster_id <=19) or (cluster_id >=100 and cluster_id <200)) and content_score >= 8"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    if not rows:
         return
-
     clusters = []
     colors = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#000000",
         "#800000", "#008000", "#000080", "#808000", "#800080", "#008080", "#808080",
@@ -73,20 +77,50 @@ def extract_landmarks(request, location='1'):
     i = 0
     lat_center = 0.0
     lon_center = 0.0
-    for _cluster in _clusters:
-        cluster_no = _cluster['cluster_id']
+    for row in rows:
+        cluster_no = row['cluster_id']
         cluster_loc = {
-            'latitude': _cluster['latitude'],
-            'longitude': _cluster['longitude']
+            'latitude': row['latitude'],
+            'longitude': row['longitude']
         }
         # cluster_address = to_address(cluster_loc['latitude'], cluster_loc['longitude'])
-        cluster_address = _cluster['address']
+        cluster_address = row['address']
         cluster_points = []
-        points = [point for point in photosCollection.find({"cluster_info": cluster_no})]
+        points = []
+        query = "select * from london where cluster_info=%s"
+        cursor.execute(query, (cluster_no,))
+        result = cursor.fetchall()
+        if result:
+            points.extend(result)
+        query = "select * from sydney where cluster_info=%s"
+        cursor.execute(query, (cluster_no,))
+        result = cursor.fetchall()
+        if result:
+            points.extend(result)
+        query = "select * from paris where cluster_info=%s"
+        cursor.execute(query, (cluster_no,))
+        result = cursor.fetchall()
+        if result:
+            points.extend(result)
 
+        query = "select * from singapore where cluster_info=%s"
+        cursor.execute(query, (cluster_no,))
+        result = cursor.fetchall()
+        if result:
+            points.extend(result)
+        query = "select * from newyork where cluster_info=%s"
+        cursor.execute(query, (cluster_no,))
+        result = cursor.fetchall()
+        if result:
+            points.extend(result)
+        query = "select * from sanfrancisco where cluster_info=%s"
+        cursor.execute(query, (cluster_no,))
+        result = cursor.fetchall()
+        if result:
+            points.extend(result)
+        # points = cursor.fetchall()
         if not points:
             continue
-
         for point in points:
             cluster_point = {
                 'photo_id': point['photo_id'],
@@ -94,17 +128,15 @@ def extract_landmarks(request, location='1'):
                 'longitude': float(point['longitude']),
             }
             cluster_points.append(cluster_point)
-
         cluster = {
             'cluster_no': cluster_no,
             'cluster_loc': cluster_loc,
             'cluster_points': cluster_points,
             'color': colors[(i+1)%56],
             'cluster_address': cluster_address,
-            'rank': _cluster['rank']
         }
-        lat_center += float(_cluster['latitude'])
-        lon_center += float(_cluster['longitude'])
+        lat_center += float(row['latitude'])
+        lon_center += float(row['longitude'])
         i += 1
         clusters.append(cluster)
     lat_center /= i
@@ -113,5 +145,5 @@ def extract_landmarks(request, location='1'):
         'latitude': lat_center,
         'longitude': lon_center
     }
-    client.close()
+    conn.close()
     return render(request, 'landmarks.html', {'clusters': clusters, 'map_center': map_center})
