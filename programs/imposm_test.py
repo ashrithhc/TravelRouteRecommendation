@@ -1,22 +1,18 @@
 from imposm.parser import OSMParser
+import sys
 
-# simple class that handles the parsed OSM data.
 class HighwayCounter(object):
-    highways = 0
-    count = 0
+    def __init__(self):
+    	self.highways = 0
+    	self.count = 0
 
     def ways(self, ways):
-        # callback method for ways
-        for osmid, tags, refs in ways:
-            # if 'highway' in tags:
-            #   self.highways += 1
+        for osmid, tags, refs in ways:         
             self.count += 1
 
-# instantiate counter and parser and start parsing
 counter = HighwayCounter()
-print "Calling parser"
+print "Calling parser\n"
 p = OSMParser(concurrency=4, ways_callback=counter.ways)
-p.parse('new-york_new-york.osm')
+p.parse('../osm_data/new-york_new-york.osm.bz2')
 
-# done
 print counter.count
