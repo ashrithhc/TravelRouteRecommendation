@@ -20,7 +20,7 @@ class HighwayCounter(object):
 counter = HighwayCounter()
 print "Calling parser\n"
 p = OSMParser(concurrency=4, ways_callback=counter.build_graph)
-p.parse('../osm_data/singapore.osm.bz2')
+p.parse('../osm_data/san-francisco_california.osm.bz2')
 print len(counter.graph.nodes())
 print len(counter.graph.edges())
 
