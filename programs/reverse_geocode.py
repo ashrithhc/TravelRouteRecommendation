@@ -47,7 +47,7 @@ def reverse_geocode():
         bottom, left, top, right = bbox.boundingBox(lat, lon, 0.05)
         poi = get_closest_poi(left, bottom, right, top)
         if poi == "":
-            bottom, left, top, right = bbox.boundingBox(lat, lon, 0.1)
+            bottom, left, top, right = bbox.boundingBox(lat, lon, 0.1) #left_lat, left_lon, right_lat, right_lon
             poi = get_closest_poi(left, bottom, right, top)
 
         clustersCollection.update({"cluster_id": cluster["cluster_id"]}, {"$set": {"address": poi}})

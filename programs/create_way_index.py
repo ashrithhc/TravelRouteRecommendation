@@ -27,7 +27,8 @@ def rtree_indexing(location):
 				longitude = float(lon_lat[0])
 				idx.insert(_id, (latitude, latitude, longitude, longitude), obj={
 						'node_id': node,
-						'way_id': way['way_id']
+						'way_id': way['way_id'],
+						'lon_lat': lon_lat
 					})
 				_id += 1
 
