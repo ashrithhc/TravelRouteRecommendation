@@ -13,3 +13,5 @@ db.photos.find({
 })
 
 db.clusters.find({$and:[{"cluster_id":/^1.*/},{"content_score":{$gte:8}}]}).count()
+
+db.node_data.find().forEach( function(e) { db.node_data.update({_id: e._id}, {$rename: {"lat_lon": "lon_lat"}}); } );

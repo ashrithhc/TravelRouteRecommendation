@@ -43,13 +43,13 @@ class Bbox:
 
       return (self.rad2deg(latMin), self.rad2deg(lonMin), self.rad2deg(latMax), self.rad2deg(lonMax))
 
+if __name__=='__main__':
+  bbox = Bbox()
+  lat_min, lon_min, lat_max, lon_max = bbox.boundingBox(1.2865426, 103.8542399, 0.05)
 
-bbox = Bbox()
-lat_min, lon_min, lat_max, lon_max = bbox.boundingBox(1.2865426, 103.8542399, 0.05)
-
-print "Left Bottom:"
-print "Lat: ", lat_min
-print "Lon: ", lon_min
-print "Right Top:"
-print "Lat: ", lat_max
-print "Lon: ", lon_max
+  print "Left Bottom:"
+  print "Lat: ", lat_min
+  print "Lon: ", lon_min
+  print "Right Top:"
+  print "Lat: ", lat_max
+  print "Lon: ", lon_max

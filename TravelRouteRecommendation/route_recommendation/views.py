@@ -1,53 +1,66 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-import mysql.connector
 import requests
-from mysql.connector.cursor import MySQLCursorDict
-import json
 from pymongo import MongoClient
+import xml.etree.ElementTree as ET
+from utilities import Bbox
 
 
 def index(request):
     return HttpResponse("Hello, world. You're at the home page.")
 
-# def to_address(lat, lon):
-def to_address():
-    mysql_config = {
-        'user': 'root',
-        'password': 'password',
-        'host': '127.0.0.1',
-        'database': 'flickr',
-    }
-    conn = mysql.connector.connect(**mysql_config)
-    cursor = conn.cursor(cursor_class=MySQLCursorDict)
-    query = "SELECT * FROM clusters"
-    cursor.execute(query)
 
-    rows = cursor.fetchall()
-    for row in rows:
-        lat = row['latitude']
-        lon = row['longitude']
-        url = "http://open.mapquestapi.com/geocoding/v1/reverse?key=Fmjtd%7Cluurn96z20%2C7x%3Do5-9w8a5u&location="
-        url = url + str(lat) + "," + str(lon)
-        decode = requests.get(url).json()
-        print json.dumps(decode, indent=4, sort_keys=True)
-        results = decode["results"]
-        if results and len(results)>0:
-            if results[0]["locations"]:
-                country = results[0]["locations"][0]["adminArea1"].encode('utf-8')
-                state = results[0]["locations"][0]["adminArea3"].encode('utf-8')
-                county = results[0]["locations"][0]["adminArea4"].encode('utf-8')
-                city = results[0]["locations"][0]["adminArea5"].encode('utf-8')
-                postalcode = results[0]["locations"][0]["postalCode"].encode('utf-8')
-                sideofstreet = results[0]["locations"][0]["sideOfStreet"].encode('utf-8')
-                street = results[0]["locations"][0]["street"].encode('utf-8')
-                Address = street + ', ' + sideofstreet + ', ' + city + ', ' + county + ', ' + state + ', ' + country + ', ' + postalcode
+def get_closest_poi(left, bottom, right, top):
 
-        query = "UPDATE clusters SET address = %s WHERE cluster_id = %s"
-        cursor.execute(query, (Address,row['cluster_id']))
-        conn.commit()
-    conn.close()
-    # return Address
+    url = "http://open.mapquestapi.com/xapi/api/0.6/node[amenity=*][bbox=%s,%s,%s,%s]" % (left, bottom, right, top)
+    decode = requests.get(url)
+    root = ET.fromstring(decode.content)
+
+    max_tags = 0
+    poi = None
+    poi_tags = None
+    for element in root.findall('*'):
+        name = False
+        tags = element.findall('*')
+        for tag in tags:
+            key_value = tag.attrib
+            if key_value['k'] == 'name':
+                name = True
+        if name and len(tags) > max_tags:
+            max_tags = len(tags)
+            poi = element
+            poi_tags = tags
+
+    poi_name = ""
+    if poi is not None:
+        for tag in poi_tags:
+            key_value = tag.attrib
+            if key_value['k'] == 'name':
+                poi_name = key_value['v']
+
+    return poi_name
+
+
+def reverse_geocode():
+    client = MongoClient()
+    db = client.flickr
+    clustersCollection = db.clusters
+    clusters = clustersCollection.find({})
+
+    for cluster in clusters:
+        lat = cluster['latitude']
+        lon = cluster['longitude']
+        bbox = Bbox()
+        bottom, left, top, right = bbox.boundingBox(lat, lon, 0.05)
+        poi = get_closest_poi(left, bottom, right, top)
+        if poi == "":
+            bottom, left, top, right = bbox.boundingBox(lat, lon, 0.1)
+            poi = get_closest_poi(left, bottom, right, top)
+
+        clustersCollection.update({"cluster_id": cluster["cluster_id"]}, {"$set": {"address": poi}})
+
+    client.close()
+
 
 
 def extract_landmarks(request, location='1'):
