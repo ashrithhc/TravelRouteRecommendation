@@ -1,6 +1,8 @@
 #Get distance of non-assigned POIs to ways and consider the first two closest ways!
 
 from pymongo import MongoClient
+from bbox import Bbox
+from haversine_distance import haversine
 
 def get_two_roads(node_id):
 	

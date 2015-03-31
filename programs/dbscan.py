@@ -1,5 +1,4 @@
 from math import sqrt, pow, radians, cos, sin, asin, sqrt, log
-import mysql.connector
 from pymongo import MongoClient
 import time
 
