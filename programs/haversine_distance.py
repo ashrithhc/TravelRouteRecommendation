@@ -1,11 +1,10 @@
 from math import sqrt, pow, radians, cos, sin, asin, sqrt, log
 
 class Haversine:
-    def __init__(self, point1, point2):
-        self.point1 = point1
-        self.point2 = point2
+    def __init__(self):
+        pass
 
-    def get_distance(self):
+    def get_distance(self, point1, point2):
         """
         Calculate the great circle distance between two points 
         on the earth (specified in decimal degrees)
