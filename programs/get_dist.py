@@ -99,7 +99,8 @@ def check_nodes():
 		_way_data = db.way_data
 		_node_data = db.node_data
 
-		node_list = _node_data.find({'$and': [{'belongs_to_way' : {'$exists' : False} }], 'is_poi': True})
+		# node_list = _node_data.find({'$and': [{'belongs_to_way' : {'$exists' : False} }, {'is_poi': True}]})
+		node_list = _node_data.find({'is_poi': True})
 		for node in node_list:
 			way1, dist1, way2, dist2 = get_two_roads(node['node_id'], node['lon_lat'], 1)
 			#use way1, way2 to assign node to a particular way.
@@ -116,7 +117,12 @@ def check_nodes():
 					}
 					_node_data.update({'node_id': node['node_id']}, {'$set': {'closest_roads': closest_roads}})
 				else:
+					closest_roads = {
+						'first_road': way1,
+						'first_distance': dist1
+					}
 					_node_data.update({'node_id': node['node_id']}, {'$set': {'belongs_to_way': way1}})
+					_node_data.update({'node_id': node['node_id']}, {'$set': {'closest_roads': closest_roads}})
 
 		client.close()
 
