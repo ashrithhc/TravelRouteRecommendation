@@ -45,7 +45,7 @@ def get_two_roads(node_id, lon_lat, location):
 	# Group all the nodes such that all nodes on a way occur together.
 	close_ways = {}
 	for node in nodes_around:
-		if close_ways.get(node['way_id']) is None:
+		if close_ways.get(node['way_id'], None) is None:
 			close_ways[node['way_id']] = [node]
 		else:
 			close_ways[node['way_id']].append(node)
