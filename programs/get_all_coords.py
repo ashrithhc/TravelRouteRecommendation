@@ -16,6 +16,7 @@ def get_nodes_coords(location):
 	_way_data = db.way_data
 
 	way_list = _way_data.find({'location': location, 'done': {'$exists': False}})
+	# way_list = _way_data.find({'location': location})
 	node_list = _node_data.find({'location': location})
 	
 	node_dict = {}
@@ -23,6 +24,8 @@ def get_nodes_coords(location):
 
 	for node in node_list:
 		node_dict[node['node_id']] = 1
+
+	print "Node dict length: ", len(node_dict)
 
 	count = 0
 	for way in way_list:
@@ -33,9 +36,12 @@ def get_nodes_coords(location):
 				id_query_elem = ET.SubElement(root, 'id-query', {'ref': node, 'type': 'node'})
 				print_elem = ET.SubElement(root, 'print')
 				count += 1
+
 		if count > 100000:
+			xml_queries.append([ET.tostring(root), count])
 			count = 0
-			xml_queries.append(ET.tostring(root))
+
+	xml_queries.append([ET.tostring(root), count])
 
 	print "No of queries: ", len(xml_queries)
 	print ""
@@ -44,9 +50,9 @@ def get_nodes_coords(location):
 
 	for query in xml_queries:
 		nodes_to_insert = []
-		result = api.query(query)
+		result = api.query(query[0])
 		query_counter += 1
-		print "Query ", query_counter
+		print "Query ", query_counter, ": ", query[1]
 		for node in result.nodes:
 			node_doc = {
 				'node_id': node.id,
@@ -56,6 +62,7 @@ def get_nodes_coords(location):
 			}
 			nodes_to_insert.append(node_doc)
 
+		print len(nodes_to_insert)
 		_node_data.insert(nodes_to_insert)
 
 	client.close()
