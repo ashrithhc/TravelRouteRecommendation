@@ -16,4 +16,14 @@ db.clusters.find({$and:[{"cluster_id":/^1.*/},{"content_score":{$gte:8}}]}).coun
 
 db.node_data.find().forEach( function(e) { db.node_data.update({_id: e._id}, {$rename: {"lat_lon": "lon_lat"}}); } );
 
+db.node_data.find().forEach( function(e) { db.node_data.update({_id: e._id}, {$set: {"lon_lat": [parseFloat(e.lon_lat[0]),parseFloat(e.lon_lat[1])]}}); } );
+
 db.way_data.find().forEach( function(e) { db.way_data.update({_id: e._id}, {$set: {"location": 1}}); } );
+
+
+db.node_data.find({'lat_lon': {$exists: true}}).forEach( function(e) { db.node_data.update({_id: e._id}, {$unset: {"lat_lon": ""}}); } );
+
+db.node_data.find({"node_id": {$type: 18}}).forEach( function(e) { db.node_data.update({_id: e._id}, {$set: {"node_id": String(e.node_id)}}); } );
+
+db.node_data.find({"node_id": {$type: 16}}).forEach( function(e) { db.node_data.update({_id: e._id}, {$set: {"node_id": String(e.node_id)}}); } );
+

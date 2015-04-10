@@ -27,21 +27,30 @@ def get_nodes_coords(location):
 
 	print "Node dict length: ", len(node_dict)
 
-	count = 0
+	nodes_to_query = {}
+
 	for way in way_list:
-		if count == 0:
-			root = ET.Element('osm-script')
 		for node in way['node_list']:
 			if node_dict.get(node, None) is None:
-				id_query_elem = ET.SubElement(root, 'id-query', {'ref': node, 'type': 'node'})
-				print_elem = ET.SubElement(root, 'print')
-				count += 1
+				if nodes_to_query.get(node, None) is None:
+					nodes_to_query[node] = 0
 
-		if count > 100000:
-			xml_queries.append([ET.tostring(root), count])
+	print "No of nodes to be queried: ", len(nodes_to_query)
+
+	count = 0
+	for node in nodes_to_query:
+		if count == 0:
+			root = ET.Element('osm-script')
+
+		id_query_elem = ET.SubElement(root, 'id-query', {'ref': node, 'type': 'node'})
+		print_elem = ET.SubElement(root, 'print')
+		count += 1
+
+		if count == 30000:
+			xml_queries.append((ET.tostring(root), count))
 			count = 0
 
-	xml_queries.append([ET.tostring(root), count])
+	xml_queries.append((ET.tostring(root), count))
 
 	print "No of queries: ", len(xml_queries)
 	print ""
@@ -50,20 +59,28 @@ def get_nodes_coords(location):
 
 	for query in xml_queries:
 		nodes_to_insert = []
-		result = api.query(query[0])
 		query_counter += 1
 		print "Query ", query_counter, ": ", query[1]
+		
+		result = api.query(query[0])
+		
 		for node in result.nodes:
-			node_doc = {
-				'node_id': node.id,
-				'lon_lat': [float(node.lon), float(node.lat)],
-				'location': location,
-				'is_poi': False
-			}
-			nodes_to_insert.append(node_doc)
+			node_id = str(node.id)
+			if nodes_to_query.get(node_id, None) is None:
+				continue
+			if nodes_to_query[node_id] == 0:
+				node_doc = {
+					'node_id': node_id,
+					'lon_lat': [float(node.lon), float(node.lat)],
+					'location': location,
+					'is_poi': False
+				}
+				nodes_to_insert.append(node_doc)
+				nodes_to_query[node_id] = 1
 
-		print len(nodes_to_insert)
-		_node_data.insert(nodes_to_insert)
+		if len(nodes_to_insert) > 0:
+			print len(nodes_to_insert)
+			_node_data.insert(nodes_to_insert)
 
 	client.close()
 
