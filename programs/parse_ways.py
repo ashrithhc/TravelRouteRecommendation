@@ -3,7 +3,7 @@ from imposm.parser import OSMParser
 import time
 from definitions import way_tags
 
-def populate_data(way_id, tags, node_list, way_flag):
+def populate_data(way_id, tags, node_list, way_flag, city_num):
 	try:
 
 		client = MongoClient()
@@ -17,15 +17,10 @@ def populate_data(way_id, tags, node_list, way_flag):
 			"way_id" : str(way_id),
 			"tags" : tags,
 			"node_list" : node_list,
-			# "is_road" : way_flag,
+			"location": city_num
 		}
 
 		_way_data.insert(way)
-
-		# for node in node_list:
-		# 	_node = _node_data.find_one({'node_id': node})
-		# 	if _node and _node['is_poi'] == True:
-		# 		_node_data.update({'node_id':node}, {'$set': {'belongs_to_way': way_id}})
 
 		client.close()
 
@@ -50,15 +45,20 @@ def ways_call(ways):
 
     	way_flag = check_road(tags)
     	if way_flag:
-    		populate_data(way_id, tags, node_list, way_flag)
+    		# populate_data(way_id, tags, node_list, way_flag, 1)
+    		populate_data(way_id, tags, node_list, way_flag, 2)
+    		# populate_data(way_id, tags, node_list, way_flag, 3)
+    		# populate_data(way_id, tags, node_list, way_flag, 4)
+    		# populate_data(way_id, tags, node_list, way_flag, 5)
+    		# populate_data(way_id, tags, node_list, way_flag, 6)
 
 
 print "Calling parser\n"
 
 parser = OSMParser(concurrency=4, ways_callback=ways_call)
 
-parser.parse('../osm_data/Sydney.osm.bz2')
-# parser.parse('../osm_data/Paris.osm.bz2')
+# parser.parse('../osm_data/Sydney.osm.bz2')
+parser.parse('../osm_data/Paris.osm.bz2')
 # parser.parse('../osm_data/London.osm.bz2')
 # parser.parse('../osm_data/Singapore.osm.bz2')
 # parser.parse('../osm_data/NewYork.osm.bz2')

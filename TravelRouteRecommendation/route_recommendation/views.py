@@ -4,6 +4,7 @@ import requests
 from pymongo import MongoClient
 import xml.etree.ElementTree as ET
 from utilities import Bbox
+import re
 
 
 def index(request):
@@ -68,7 +69,10 @@ def extract_landmarks(request, location='1'):
     db = client.flickr
     clustersCollection = db.clusters
     photosCollection = db.photos
-    _clusters = clustersCollection.find({"content_score": {"$gte": 8}})
+
+    pattern = "^1.*$"
+    regex = re.compile(pattern)
+    _clusters = clustersCollection.find({"rank": {"$exists": True}, "cluster_id": regex, "poi_id": {"$ne": None}})
 
     if _clusters.count() == 0:
         return
@@ -90,9 +94,10 @@ def extract_landmarks(request, location='1'):
         cluster_no = _cluster['cluster_id']
         cluster_loc = {
             'latitude': _cluster['latitude'],
-            'longitude': _cluster['longitude']
+            'longitude': _cluster['longitude'],
+            'poi_lat': _cluster['poi_lat'],
+            'poi_lon': _cluster['poi_lon']
         }
-        # cluster_address = to_address(cluster_loc['latitude'], cluster_loc['longitude'])
         cluster_address = _cluster['address']
         cluster_points = []
         points = [point for point in photosCollection.find({"cluster_info": cluster_no})]
@@ -116,8 +121,8 @@ def extract_landmarks(request, location='1'):
             'cluster_address': cluster_address,
             'rank': _cluster['rank']
         }
-        lat_center += float(_cluster['latitude'])
-        lon_center += float(_cluster['longitude'])
+        lat_center += float(_cluster['poi_lat'])
+        lon_center += float(_cluster['poi_lon'])
         i += 1
         clusters.append(cluster)
     lat_center /= i
@@ -128,3 +133,54 @@ def extract_landmarks(request, location='1'):
     }
     client.close()
     return render(request, 'landmarks.html', {'clusters': clusters, 'map_center': map_center})
+
+
+def get_route(request, source, dest):
+    client = MongoClient()
+    db = client.flickr
+    _routes = db.routes
+    _node_data = db.node_data
+    _clusters = db.clusters
+
+    source_cluster = _clusters.find_one({'cluster_id': source})
+    dest_cluster = _clusters.find_one({'cluster_id': dest})
+
+    _source_node = _node_data.find_one({'node_id': source_cluster['poi_id']})
+    _dest_node = _node_data.find_one({'node_id': dest_cluster['poi_id']})
+
+    source_node = {
+        'latitude': _source_node['lon_lat'][1],
+        'longitude': _source_node['lon_lat'][0],
+        'name': source_cluster['address']
+    }
+    dest_node = {
+        'latitude': _dest_node['lon_lat'][1],
+        'longitude': _dest_node['lon_lat'][0],
+        'name': dest_cluster['address']
+    }
+
+    node_list = _node_data.find({'location': int(source[0])})
+    node_dict = {}
+
+    for node in node_list:
+        node_dict[node['node_id']] = node['lon_lat']
+
+    route = _routes.find_one({'source_cluster': source, 'dest_cluster': dest})
+    path = route['route']
+    path_nodes = []
+
+    for node_id in path:
+        node = node_dict.get(node_id, None)
+        if node:
+            coords = [float(node[1]), float(node[0])]
+            path_nodes.append(coords)
+
+    lat_center = (source_node['latitude']+dest_node['latitude'])/2.0
+    lon_center = (source_node['longitude']+dest_node['longitude'])/2.0
+    map_center = {
+        'latitude': lat_center,
+        'longitude': lon_center
+    }
+
+    client.close()
+    return render(request, 'route.html', {'source': source_node, 'dest': dest_node, 'path': path_nodes, 'map_center': map_center})

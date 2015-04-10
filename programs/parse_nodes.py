@@ -53,15 +53,20 @@ def nodes_call(nodes):
     		node_flag = False
     	else:
     		node_flag = True
-    	populate_data(node_id, tags, lon_lat, node_flag, category, 1)
+    	# populate_data(node_id, tags, lon_lat, node_flag, category, 1)
+    	populate_data(node_id, tags, lon_lat, node_flag, category, 2)
+    	# populate_data(node_id, tags, lon_lat, node_flag, category, 3)
+    	# populate_data(node_id, tags, lon_lat, node_flag, category, 4)
+    	# populate_data(node_id, tags, lon_lat, node_flag, category, 5)
+    	# populate_data(node_id, tags, lon_lat, node_flag, category, 6)
 
 
 print "Calling parser\n"
 
 parser = OSMParser(concurrency=4, nodes_callback=nodes_call)
 
-parser.parse('../osm_data/Sydney.osm.bz2')
-# parser.parse('../osm_data/Paris.osm.bz2')
+# parser.parse('../osm_data/Sydney.osm.bz2')
+parser.parse('../osm_data/Paris.osm.bz2')
 # parser.parse('../osm_data/London.osm.bz2')
 # parser.parse('../osm_data/Singapore.osm.bz2')
 # parser.parse('../osm_data/NewYork.osm.bz2')

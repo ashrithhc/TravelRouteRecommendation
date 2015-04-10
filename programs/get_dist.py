@@ -6,7 +6,7 @@ from haversine_distance import Haversine
 from rtree import index
 
 
-def dist_btw(lon_lat, way_id, node_list):
+def dist_btw(lon_lat, node_list):
 	
 	point1 = {
 		'latitude': lon_lat[1],
@@ -58,12 +58,12 @@ def get_two_roads(node_id, lon_lat, location):
 		for way_id in close_ways:
 			node_list = close_ways[way_id]
 			if count==0:
-				min_dist_1 = dist_btw(lon_lat, way_id, node_list)
+				min_dist_1 = dist_btw(lon_lat, node_list)
 				min_way_1 = way_id
 				count = count + 1
 
 			elif count==1:
-				min_dist_2 = dist_btw(lon_lat, way_id, node_list)
+				min_dist_2 = dist_btw(lon_lat, node_list)
 				d = min_dist_2
 				min_way_2 = way_id
 				if min_dist_2 < min_dist_1:
@@ -74,7 +74,7 @@ def get_two_roads(node_id, lon_lat, location):
 				count = count + 1
 
 			else:
-				d = dist_btw(lon_lat, way_id, node_list)
+				d = dist_btw(lon_lat, node_list)
 				if d < min_dist_1:
 					min_dist_2 = min_dist_1
 					min_way_2 = min_way_1
@@ -85,13 +85,13 @@ def get_two_roads(node_id, lon_lat, location):
 					min_way_2 = way_id
 	elif len(close_ways)==1:
 		min_way_1 = close_ways.keys()[0]
-		min_dist_1 = dist_btw(lon_lat, min_way_1, close_ways[min_way_1])
+		min_dist_1 = dist_btw(lon_lat, close_ways[min_way_1])
 	#END
 
 	return min_way_1, min_dist_1, min_way_2, min_dist_2
 
 
-def check_nodes():
+def check_nodes(location):
 	try:
 
 		client = MongoClient()
@@ -100,12 +100,12 @@ def check_nodes():
 		_node_data = db.node_data
 
 		# node_list = _node_data.find({'$and': [{'belongs_to_way' : {'$exists' : False} }, {'is_poi': True}]})
-		node_list = _node_data.find({'is_poi': True})
+		node_list = _node_data.find({'is_poi': True, 'location': location})
 		for node in node_list:
-			way1, dist1, way2, dist2 = get_two_roads(node['node_id'], node['lon_lat'], 1)
+			way1, dist1, way2, dist2 = get_two_roads(node['node_id'], node['lon_lat'], location)
 			#use way1, way2 to assign node to a particular way.
 			if dist1 and dist1 <= 0.005:
-				_node_data.update({'node_id': node['node_id']}, {'$set': {'belongs_to_way': way1}})
+				_node_data.update({'node_id': node['node_id'], 'location': location}, {'$set': {'belongs_to_way': way1}})
 
 			elif way1:
 				if way2:
@@ -115,14 +115,14 @@ def check_nodes():
 						'second_road': way2,
 						'second_distance': dist2 
 					}
-					_node_data.update({'node_id': node['node_id']}, {'$set': {'closest_roads': closest_roads}})
+					_node_data.update({'node_id': node['node_id'], 'location': location}, {'$set': {'closest_roads': closest_roads}})
 				else:
 					closest_roads = {
 						'first_road': way1,
 						'first_distance': dist1
 					}
-					_node_data.update({'node_id': node['node_id']}, {'$set': {'belongs_to_way': way1}})
-					_node_data.update({'node_id': node['node_id']}, {'$set': {'closest_roads': closest_roads}})
+					_node_data.update({'node_id': node['node_id'], 'location': location}, {'$set': {'belongs_to_way': way1}})
+					_node_data.update({'node_id': node['node_id'], 'location': location}, {'$set': {'closest_roads': closest_roads}})
 
 		client.close()
 
@@ -131,4 +131,5 @@ def check_nodes():
 
 
 if __name__=='__main__':
-	check_nodes()
+	location = 1
+	check_nodes(location)

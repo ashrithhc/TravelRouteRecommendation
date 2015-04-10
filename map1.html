@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="libraries/openLayers_v3.3.0/css/ol.css" type="text/css">
+    <style>
+      .map {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+    <script src="libraries/openLayers_v3.3.0/build/ol.js" type="text/javascript"></script>
+    <title>my map</title>
+  </head>
+  <body>
+    <h2>My Map</h2>
+    <div id="map" class="map"></div>
+    <script type="text/javascript">
+
+        var iconFeature = new ol.Feature({
+          geometry: new ol.geom.Point([0, 0]),
+          name: 'Null Island',
+          population: 4000,
+          rainfall: 500
+        });
+
+        var circle = new ol.style.Circle({
+                    fill: new ol.style.Fill({
+                        color: '{{ cluster.color }}'
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: '{{ cluster.color }}',
+                        width: 1.25
+                    }),
+                    radius: 50
+                });
+
+        iconFeature.setStyle(new ol.style.Style({
+              image: circle,
+              fill: new ol.style.Fill({
+                  color: '{{ cluster.color }}'
+              }),
+              stroke: new ol.style.Stroke({
+                  color: '{{ cluster.color }}',
+                  width: 1.25
+              })
+          }));
+
+        var vectorSource = new ol.source.Vector({
+          features: [iconFeature]
+        });
+
+        var vectorLayer = new ol.layer.Vector({
+          source: vectorSource
+        });
+
+        // var rasterLayer = new ol.layer.Tile({
+        //   source: new ol.source.TileJSON({
+        //     url: 'http://api.tiles.mapbox.com/v3/mapbox.geography-class.jsonp',
+        //     crossOrigin: ''
+        //   })
+        // });
+
+        var rasterLayer = new ol.layer.Tile({
+          source: new ol.source.OSM()
+        });
+
+        var map = new ol.Map({
+          layers: [rasterLayer, vectorLayer],
+          target: document.getElementById('map'),
+          view: new ol.View({
+            center: [0, 0],
+            zoom: 3
+          })
+        });
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,9 @@
+1. parse_nodes
+2. parse_ways
+3. assign_ways_to_pois
+4. get_all_coords
+5. create_way_index
+6. get_dist
+7. svm
+8. recommendation_index
+9. generate_route

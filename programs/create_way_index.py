@@ -10,7 +10,7 @@ def rtree_indexing(location):
 		_way_data = db.way_data
 		_node_data = db.node_data
 
-		way_list = _way_data.find({})
+		way_list = _way_data.find({'location': location})
 
 		node_to_way_map = {}
 		print "Begin creating a map"
@@ -19,7 +19,8 @@ def rtree_indexing(location):
 				if node_to_way_map.get(node, None) is None:
 					node_to_way_map[node] = way['way_id']
 		print "End creating a map"
-		print len(node_to_way_map)
+		
+		print "Length of map: ", len(node_to_way_map)
 
 
 		prop = index.Property()
@@ -29,7 +30,7 @@ def rtree_indexing(location):
 
 		_id = 1
 
-		node_list = _node_data.find()
+		node_list = _node_data.find({'location': location})
 
 		for node in node_list:
 			node_to_way = node_to_way_map.get(node['node_id'], None)
@@ -55,4 +56,5 @@ def rtree_indexing(location):
 
 
 if __name__=='__main__':
-	rtree_indexing(1)
+	location = 1
+	rtree_indexing(location)

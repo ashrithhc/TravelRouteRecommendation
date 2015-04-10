@@ -1,13 +1,13 @@
 from pymongo import MongoClient
 
-def assign():
+def assign(location):
 	client = MongoClient()
 	db = client.flickr
 	_way_data = db.way_data
 	_node_data = db.node_data
 
 	print "Begin creating a map!"
-	way_list = _way_data.find()
+	way_list = _way_data.find({'location': location})
 
 	node_to_way_map = {}
 
@@ -20,7 +20,7 @@ def assign():
 
 	print "Begin assignment!"
 
-	node_list = _node_data.find({'is_poi': True})
+	node_list = _node_data.find({'is_poi': True, 'location': location})
 	count = 0
 
 	for node in node_list:
@@ -37,7 +37,7 @@ def assign():
 
 # function that assigns nodes to ways by looking at the street information present in the node and comparing it
 # with the way name
-def parse_node_tags():
+def parse_node_tags(location):
 	client = MongoClient()
 	db = client.flickr
 	_way_data = db.way_data
@@ -48,7 +48,7 @@ def parse_node_tags():
 	print "Begin creating street name to way_id dictionary"
 
 	street_to_way = {}
-	way_list = _way_data.find()
+	way_list = _way_data.find({'location': location})
 
 	for way in way_list:
 		tags = way['tags']
@@ -61,7 +61,7 @@ def parse_node_tags():
 
 	print "Begin parsing node tags"
 
-	node_list = _node_data.find({'$and': [{'belongs_to_way' : {'$exists' : False} }, {'is_poi': True}]})
+	node_list = _node_data.find({'belongs_to_way': {'$exists' : False}, 'is_poi': True, 'location': location})
 
 	# count = 0
 	for node in node_list:
@@ -80,5 +80,6 @@ def parse_node_tags():
 
 	
 if __name__=='__main__':
-	assign()
-	parse_node_tags()
+	location = 1
+	assign(location)
+	parse_node_tags(location)

@@ -15,18 +15,32 @@
     <h2>My Map</h2>
     <div id="map" class="map"></div>
     <script type="text/javascript">
+
+      var osmLayer = new ol.layer.Tile({
+              source: new ol.source.OSM({layer: 'osm'})
+            });
+      var vectorLayer = new ol.layer.Vector({
+            source: new ol.source.Vector({
+              features: [new ol.Feature({
+                geometry: new ol.geom.Point([151.1805118, -33.8960846])
+              })]
+            })
+          });
+
       var map = new ol.Map({
-        target: 'map',
+        target: document.getElementById('map'),
         layers: [
-          new ol.layer.Tile({
-            source: new ol.source.OSM({layer: 'osm'})
-          })
+          osmLayer,
+          vectorLayer
         ],
         view: new ol.View({
-          center: ol.proj.transform([103.8542399,1.2865426], 'EPSG:4326', 'EPSG:3857'),
-          zoom: 21
+          center: ol.proj.transform([151.2019859, -33.8744212], 'EPSG:4326', 'EPSG:3857'),
+          zoom: 13
         })
       });
+
+      osmLayer.setVisible(false);
+      vectorLayer.setVisible(true);
     </script>
   </body>
 </html>
