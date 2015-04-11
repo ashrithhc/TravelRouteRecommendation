@@ -4,19 +4,31 @@ import time
 from definitions import node_tags
 
 
-def populate_data(node_id, tags, lon_lat, node_flag, category, city_num):
+def populate_data(node_id, tags, lon_lat, node_flag, category, location):
 	try:
 
 		client = MongoClient()
 		db = client.flickr
-		_node_data = db.node_data
+		# _node_data = db.node_data
+		if location==1:
+			_node_data = db.node_data
+		elif location==2:
+			_node_data = db.node_data_2
+		elif location==3:
+			_node_data = db.node_data_3
+		elif location==4:
+			_node_data = db.node_data_4
+		elif location==5:
+			_node_data = db.node_data_5
+		elif location==6:
+			_node_data = db.node_data_6
 
 		node = {
 			"node_id" : str(node_id),
 			"tags" : tags,
 			"lon_lat" : lon_lat,
 			"is_poi" : node_flag,
-			"location" : city_num
+			"location" : location
 		}
 
 		if category is not None:

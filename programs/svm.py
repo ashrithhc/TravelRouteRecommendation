@@ -7,8 +7,26 @@ import pickle
 def create_training_set(location):
 	client = MongoClient()
 	db = client.flickr
-	_way_data = db.way_data
-	_node_data = db.node_data
+	# _way_data = db.way_data
+	# _node_data = db.node_data
+	if location==1:
+		_node_data = db.node_data
+		_way_data = db.way_data
+	elif location==2:
+		_node_data = db.node_data_2
+		_way_data = db.way_data_2
+	elif location==3:
+		_node_data = db.node_data_3
+		_way_data = db.way_data_3
+	elif location==4:
+		_node_data = db.node_data_4
+		_way_data = db.way_data_4
+	elif location==5:
+		_node_data = db.node_data_5
+		_way_data = db.way_data_5
+	elif location==6:
+		_node_data = db.node_data_6
+		_way_data = db.way_data_6
 
 	node_list = _node_data.find({'belongs_to_way': {'$exists' : True}, 'location': location })
 
@@ -78,8 +96,26 @@ def create_training_set(location):
 def create_data_set(location):
 	client = MongoClient()
 	db = client.flickr
-	_way_data = db.way_data
-	_node_data = db.node_data
+	# _way_data = db.way_data
+	# _node_data = db.node_data
+	if location==1:
+		_node_data = db.node_data
+		_way_data = db.way_data
+	elif location==2:
+		_node_data = db.node_data_2
+		_way_data = db.way_data_2
+	elif location==3:
+		_node_data = db.node_data_3
+		_way_data = db.way_data_3
+	elif location==4:
+		_node_data = db.node_data_4
+		_way_data = db.way_data_4
+	elif location==5:
+		_node_data = db.node_data_5
+		_way_data = db.way_data_5
+	elif location==6:
+		_node_data = db.node_data_6
+		_way_data = db.way_data_6
 
 	node_list = _node_data.find({'is_poi': True, 'belongs_to_way': {'$exists': False}, 'closest_roads': {'$exists': True}, 'location': location})
 
@@ -145,8 +181,26 @@ def classify(training_set, class_labels, location):
 
 	client = MongoClient()
 	db = client.flickr
-	_way_data = db.way_data
-	_node_data = db.node_data
+	# _way_data = db.way_data
+	# _node_data = db.node_data
+	if location==1:
+		_node_data = db.node_data
+		_way_data = db.way_data
+	elif location==2:
+		_node_data = db.node_data_2
+		_way_data = db.way_data_2
+	elif location==3:
+		_node_data = db.node_data_3
+		_way_data = db.way_data_3
+	elif location==4:
+		_node_data = db.node_data_4
+		_way_data = db.way_data_4
+	elif location==5:
+		_node_data = db.node_data_5
+		_way_data = db.way_data_5
+	elif location==6:
+		_node_data = db.node_data_6
+		_way_data = db.way_data_6
 
 	training_set_file_name = 'training_set_file_'+str(location)+'.pkl'
 	class_labels_file_name = 'class_labels_file_'+str(location)+'.pkl'

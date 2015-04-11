@@ -3,13 +3,25 @@ from imposm.parser import OSMParser
 import time
 from definitions import way_tags
 
-def populate_data(way_id, tags, node_list, way_flag, city_num):
+def populate_data(way_id, tags, node_list, way_flag, location):
 	try:
 
 		client = MongoClient()
 		db = client.flickr
-		_way_data = db.way_data
-		_node_data = db.node_data
+		# _way_data = db.way_data
+		# _node_data = db.node_data
+		if location==1:
+			_way_data = db.way_data
+		elif location==2:
+			_way_data = db.way_data_2
+		elif location==3:
+			_way_data = db.way_data_3
+		elif location==4:
+			_way_data = db.way_data_4
+		elif location==5:
+			_way_data = db.way_data_5
+		elif location==6:
+			_way_data = db.way_data_6
 
 		node_list = map(str,node_list)
 
@@ -17,7 +29,7 @@ def populate_data(way_id, tags, node_list, way_flag, city_num):
 			"way_id" : str(way_id),
 			"tags" : tags,
 			"node_list" : node_list,
-			"location": city_num
+			"location": location
 		}
 
 		_way_data.insert(way)

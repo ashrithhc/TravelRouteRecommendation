@@ -27,3 +27,9 @@ db.node_data.find({"node_id": {$type: 18}}).forEach( function(e) { db.node_data.
 
 db.node_data.find({"node_id": {$type: 16}}).forEach( function(e) { db.node_data.update({_id: e._id}, {$set: {"node_id": String(e.node_id)}}); } );
 
+db.node_data.find({"location": 2}).forEach( function(e) { db.node_data_2.insert(e); db.node_data.remove(e) } );
+db.way_data.find({"location": 2}).forEach( function(e) { db.way_data_2.insert(e); db.way_data.remove(e) } );
+
+db.node_data.find({"location": 3}).forEach( function(e) { db.node_data_3.insert(e); db.node_data.remove(e) } );
+db.way_data.find({"location": 3}).forEach( function(e) { db.way_data_3.insert(e); db.way_data.remove(e) } );
+

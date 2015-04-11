@@ -3,8 +3,25 @@ from pymongo import MongoClient
 def assign(location):
 	client = MongoClient()
 	db = client.flickr
-	_way_data = db.way_data
-	_node_data = db.node_data
+	if location==1:
+		_node_data = db.node_data
+		_way_data = db.way_data
+	elif location==2:
+		_node_data = db.node_data_2
+		_way_data = db.way_data_2
+	elif location==3:
+		_node_data = db.node_data_3
+		_way_data = db.way_data_3
+	elif location==4:
+		_node_data = db.node_data_4
+		_way_data = db.way_data_4
+	elif location==5:
+		_node_data = db.node_data_5
+		_way_data = db.way_data_5
+	elif location==6:
+		_node_data = db.node_data_6
+		_way_data = db.way_data_6
+
 
 	print "Begin creating a map!"
 	way_list = _way_data.find({'location': location})
@@ -40,8 +57,26 @@ def assign(location):
 def parse_node_tags(location):
 	client = MongoClient()
 	db = client.flickr
-	_way_data = db.way_data
-	_node_data = db.node_data
+	# _way_data = db.way_data
+	# _node_data = db.node_data
+	if location==1:
+		_node_data = db.node_data
+		_way_data = db.way_data
+	elif location==2:
+		_node_data = db.node_data_2
+		_way_data = db.way_data_2
+	elif location==3:
+		_node_data = db.node_data_3
+		_way_data = db.way_data_3
+	elif location==4:
+		_node_data = db.node_data_4
+		_way_data = db.way_data_4
+	elif location==5:
+		_node_data = db.node_data_5
+		_way_data = db.way_data_5
+	elif location==6:
+		_node_data = db.node_data_6
+		_way_data = db.way_data_6
 
 	# Create street name to way id dictionary
 
@@ -80,6 +115,6 @@ def parse_node_tags(location):
 
 	
 if __name__=='__main__':
-	location = 1
+	location = 2
 	assign(location)
 	parse_node_tags(location)

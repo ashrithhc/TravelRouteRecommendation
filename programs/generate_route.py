@@ -16,8 +16,27 @@ class Graph:
 		self.graph = DiGraph()
 		self.client = MongoClient()
 		self.db = self.client.flickr
-		self._way_data = self.db.way_data
-		self._node_data = self.db.node_data
+		# self._way_data = self.db.way_data
+		# self._node_data = self.db.node_data
+		if location==1:
+			self._node_data = self.db.node_data
+			self._way_data = self.db.way_data
+		elif location==2:
+			self._node_data = self.db.node_data_2
+			self._way_data = self.db.way_data_2
+		elif location==3:
+			self._node_data = self.db.node_data_3
+			self._way_data = self.db.way_data_3
+		elif location==4:
+			self._node_data = self.db.node_data_4
+			self._way_data = db.way_data_4
+		elif location==5:
+			self._node_data = self.db.node_data_5
+			self._way_data = self.db.way_data_5
+		elif location==6:
+			self._node_data = self.db.node_data_6
+			self._way_data = self.db.way_data_6
+
 		self.location = location
 		self.node_dict = {}
 
@@ -108,14 +127,34 @@ def get_nodes(node_id, location):
 
 if __name__ == '__main__':
 
+	location = 1
+
 	client = MongoClient()
 	db = client.flickr
-	_node_data = db.node_data
+	# _node_data = db.node_data
 	_clusters = db.clusters
-	_way_data = db.way_data
+	# _way_data = db.way_data
 	_routes = db.routes
+	if location==1:
+		_node_data = db.node_data
+		_way_data = db.way_data
+	elif location==2:
+		_node_data = db.node_data_2
+		_way_data = db.way_data_2
+	elif location==3:
+		_node_data = db.node_data_3
+		_way_data = db.way_data_3
+	elif location==4:
+		_node_data = db.node_data_4
+		_way_data = db.way_data_4
+	elif location==5:
+		_node_data = db.node_data_5
+		_way_data = db.way_data_5
+	elif location==6:
+		_node_data = db.node_data_6
+		_way_data = db.way_data_6
 
-	location = 1
+	
 	graph_obj = Graph(location)
 
 	graph_obj.build_graph()
