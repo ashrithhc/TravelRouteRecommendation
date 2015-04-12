@@ -9,9 +9,9 @@ urlpatterns = patterns('',
 
     url(r'^admin/', include(admin.site.urls)),
     # url(r'^$', include('route_recommendation.urls')),
-    # url(r'^$', views.index, name='index'),
-    url(r'^$', views.extract_landmarks),
+    url(r'^$', views.index, name='index'),
     url(r'^landmarks$', views.extract_landmarks),
     # url(r'^landmarks/(?P<location>[0-9]+)$', views.extract_landmarks)
-    url(r'^route/(?P<source>.+)/(?P<dest>.+)$', views.get_route)
+    # url(r'^route/(?P<source>.+)/(?P<dest>.+)$', views.get_route)
+    url(r'^route$', views.get_route)
 )

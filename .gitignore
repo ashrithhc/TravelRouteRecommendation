@@ -3,3 +3,4 @@ TravelRouteRecommendation/TravelRouteRecommendation/*.pyc
 *\.osm
 *\.osm\.bz2
 reading_material
+*/index_ways_*

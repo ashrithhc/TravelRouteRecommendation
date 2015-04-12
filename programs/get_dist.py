@@ -92,62 +92,62 @@ def get_two_roads(node_id, lon_lat, location):
 
 
 def check_nodes(location):
-	try:
+	# try:
 
-		client = MongoClient()
-		db = client.flickr
-		# _way_data = db.way_data
-		# _node_data = db.node_data
-		if location==1:
-			_node_data = db.node_data
-			_way_data = db.way_data
-		elif location==2:
-			_node_data = db.node_data_2
-			_way_data = db.way_data_2
-		elif location==3:
-			_node_data = db.node_data_3
-			_way_data = db.way_data_3
-		elif location==4:
-			_node_data = db.node_data_4
-			_way_data = db.way_data_4
-		elif location==5:
-			_node_data = db.node_data_5
-			_way_data = db.way_data_5
-		elif location==6:
-			_node_data = db.node_data_6
-			_way_data = db.way_data_6
+	client = MongoClient()
+	db = client.flickr
+	# _way_data = db.way_data
+	# _node_data = db.node_data
+	if location==1:
+		_node_data = db.node_data
+		_way_data = db.way_data
+	elif location==2:
+		_node_data = db.node_data_2
+		_way_data = db.way_data_2
+	elif location==3:
+		_node_data = db.node_data_3
+		_way_data = db.way_data_3
+	elif location==4:
+		_node_data = db.node_data_4
+		_way_data = db.way_data_4
+	elif location==5:
+		_node_data = db.node_data_5
+		_way_data = db.way_data_5
+	elif location==6:
+		_node_data = db.node_data_6
+		_way_data = db.way_data_6
 
-		# node_list = _node_data.find({'$and': [{'belongs_to_way' : {'$exists' : False} }, {'is_poi': True}]})
-		node_list = _node_data.find({'is_poi': True, 'location': location})
-		for node in node_list:
-			way1, dist1, way2, dist2 = get_two_roads(node['node_id'], node['lon_lat'], location)
-			#use way1, way2 to assign node to a particular way.
-			if dist1 and dist1 <= 0.005:
+	# node_list = _node_data.find({'$and': [{'belongs_to_way' : {'$exists' : False} }, {'is_poi': True}]})
+	node_list = _node_data.find({'is_poi': True, 'location': location, 'belongs_to_way': {'$exists': False}})
+	for node in node_list:
+		way1, dist1, way2, dist2 = get_two_roads(node['node_id'], node['lon_lat'], location)
+		#use way1, way2 to assign node to a particular way.
+		if dist1 and dist1 <= 0.005:
+			_node_data.update({'node_id': node['node_id'], 'location': location}, {'$set': {'belongs_to_way': way1}})
+
+		elif way1:
+			if way2:
+				closest_roads = {
+					'first_road': way1,
+					'first_distance': dist1,
+					'second_road': way2,
+					'second_distance': dist2 
+				}
+				_node_data.update({'node_id': node['node_id'], 'location': location}, {'$set': {'closest_roads': closest_roads}})
+			else:
+				closest_roads = {
+					'first_road': way1,
+					'first_distance': dist1
+				}
 				_node_data.update({'node_id': node['node_id'], 'location': location}, {'$set': {'belongs_to_way': way1}})
+				_node_data.update({'node_id': node['node_id'], 'location': location}, {'$set': {'closest_roads': closest_roads}})
 
-			elif way1:
-				if way2:
-					closest_roads = {
-						'first_road': way1,
-						'first_distance': dist1,
-						'second_road': way2,
-						'second_distance': dist2 
-					}
-					_node_data.update({'node_id': node['node_id'], 'location': location}, {'$set': {'closest_roads': closest_roads}})
-				else:
-					closest_roads = {
-						'first_road': way1,
-						'first_distance': dist1
-					}
-					_node_data.update({'node_id': node['node_id'], 'location': location}, {'$set': {'belongs_to_way': way1}})
-					_node_data.update({'node_id': node['node_id'], 'location': location}, {'$set': {'closest_roads': closest_roads}})
+	client.close()
 
-		client.close()
-
-	except Exception as e:
-		print(e)
+	# except Exception as e:
+	# 	print(e)
 
 
 if __name__=='__main__':
-	location = 1
+	location = 2
 	check_nodes(location)

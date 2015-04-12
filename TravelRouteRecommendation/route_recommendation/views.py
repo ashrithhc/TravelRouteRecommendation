@@ -7,10 +7,6 @@ from utilities import Bbox
 import re
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the home page.")
-
-
 def get_closest_poi(left, bottom, right, top):
 
     url = "http://open.mapquestapi.com/xapi/api/0.6/node[amenity=*][bbox=%s,%s,%s,%s]" % (left, bottom, right, top)
@@ -63,14 +59,32 @@ def reverse_geocode():
     client.close()
 
 
+def index(request):
+    client = MongoClient()
+    db = client.flickr
+    seed_location = db.seed_location
 
-def extract_landmarks(request, location='1'):
+    cities = []
+    locations = seed_location.find()
+
+    for loc in locations:
+        cities.append({'id': loc['location_id'], 'name': loc['name']})
+
+    return render(request, 'home.html', {'cities': cities})
+
+
+def extract_landmarks(request):
+    if not request.POST:
+        return render(request, 'home.html')
+
+    location = request.POST.get('city')
+
     client = MongoClient()
     db = client.flickr
     clustersCollection = db.clusters
     photosCollection = db.photos
 
-    pattern = "^1.*$"
+    pattern = "^" + str(location) + ".*$"
     regex = re.compile(pattern)
     _clusters = clustersCollection.find({"rank": {"$exists": True}, "cluster_id": regex, "poi_id": {"$ne": None}})
 
@@ -132,10 +146,17 @@ def extract_landmarks(request, location='1'):
         'longitude': lon_center
     }
     client.close()
-    return render(request, 'landmarks.html', {'clusters': clusters, 'map_center': map_center})
+    return render(request, 'landmarks.html', {'clusters': clusters, 'map_center': map_center, 'location': location})
 
 
-def get_route(request, source, dest):
+def get_route(request):
+
+    if not request.POST:
+        return render(request, 'home.html')
+
+    source = request.POST.get('source')
+    dest = request.POST.get('dest')
+
     client = MongoClient()
     db = client.flickr
     _routes = db.routes

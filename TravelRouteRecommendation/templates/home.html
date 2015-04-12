@@ -11,7 +11,7 @@
 {#    <script src="/static/js/jquery-1.9.1.js"></script>#}
     <script src="/static/js/jquery-1.11.2.min.js"></script>
 {#    <script src="/static/js/jquery-ui.js"></script>#}
-    <title>Route between landmarks</title>
+    <title>Landmarks represented as clusters</title>
     <style>
         #container {
             height: 500px;
@@ -20,11 +20,9 @@
         #leftpane, #map {
             height: 100%;
         }
-        #heading,#home {
+        #heading {
             margin-left: auto;
             margin-right: auto;
-        }
-        #heading_container {
             padding-top: 20px;
             padding-bottom: 20px;
             margin-bottom: 25px;
@@ -32,19 +30,24 @@
         }
     </style>
 </head>
-<body>
-    <div id="heading_container" class="row-fluid">
-        <div id="heading" class="span11">
-            <h2 style="color: #ffffcc">Landmark Extraction and Route Recommendation System</h2>
-        </div>
-        <div id="home" class="span1">
-            <h2><a class="btn btn-info" href="/">Home</a></h2>
-        </div>
+<body style="text-align: center">
+    <div id="heading">
+        <h2 style="color: #ffffcc">Landmark Extraction and Route Recommendation System</h2>
     </div>
-
+{#    <hr style="height:1px;border:none;color:#333;background-color:#333;"/>#}
     <div id="container" class="row-fluid">
         <div id="leftpane" class="span3" >
-            <h3>Choose source and destination</h3>
+            <h3>Choose a city</h3>
+            <div style="margin-top: 50px">
+                <form method="post" action="/landmarks">{% csrf_token %}
+                    <select name="city" id="city">
+                        {% for city in cities %}
+                            <option value="{{ city.id }}">{{ city.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="submit" value="Get Landmarks" class=" btn btn-info" style="margin-top: 20px">
+                </form>
+            </div>
         </div>
         <div id="map" class="span9">
 
@@ -53,32 +56,12 @@
 
     <script>
 
-{#        var map = L.map('map').setView([-33.8744212, 151.2019859], 12);#}
-        var map = L.map('map').setView([{{ map_center.latitude }}, {{ map_center.longitude }}], 12);
+        var map = L.map('map').setView([0,0], 1);
 
         L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxzoom: 30,
             attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a>'
         }).addTo(map);
-
-        var src_marker = L.marker([{{ source.latitude }}, {{ source.longitude }}]).addTo(map);
-        src_marker.bindPopup("<p><b>Name: </b>{{ source.name }}</p>");
-        src_marker.on('mouseover', function(e){
-            e.target.openPopup();
-        });
-        src_marker.on('mouseout', function(e){
-            e.target.closePopup();
-        });
-        var dest_marker = L.marker([{{ dest.latitude }}, {{ dest.longitude }}]).addTo(map);
-        dest_marker.bindPopup("<p><b>Name: </b>{{ dest.name }}</p>");
-        dest_marker.on('mouseover', function(e){
-            e.target.openPopup();
-        });
-        dest_marker.on('mouseout', function(e){
-            e.target.closePopup();
-        });
-
-        var route = L.polyline({{ path }}, {color: 'red', opacity: 0.75}).addTo(map);
 
     </script>
 

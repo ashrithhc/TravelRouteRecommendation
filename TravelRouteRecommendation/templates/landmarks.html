@@ -2,18 +2,78 @@
 <html>
 <head>
     <link rel="stylesheet" href="/static/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css" type="text/css"/>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-responsive.css" type="text/css"/>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-responsive.min.css" type="text/css"/>
     <script src="/static/leaflet/leaflet.js"></script>
     <script src="/static/leaflet/leaflet-src.js"></script>
+{#    <script src="/static/js/jquery-1.9.1.js"></script>#}
+    <script src="/static/js/jquery-1.11.2.min.js"></script>
+{#    <script src="/static/js/jquery-ui.js"></script>#}
     <title>Landmarks represented as clusters</title>
     <style>
-        #map {
-            height: 600px;
-            width: 80%;
+        #container {
+            height: 500px;
+            width: 98.5%;
+        }
+        #leftpane, #map {
+            height: 100%;
+        }
+        #heading,#home {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #heading_container {
+            padding-top: 20px;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+            background-color: #3a5774;
         }
     </style>
 </head>
-<body>
-    <div id="map"></div>
+<body style="text-align: center">
+    <div id="heading_container" class="row-fluid">
+        <div id="heading" class="span11">
+            <h2 style="color: #ffffcc">Landmark Extraction and Route Recommendation System</h2>
+        </div>
+        <div id="home" class="span1">
+            <h2><a class="btn btn-info" href="/">Home</a></h2>
+        </div>
+    </div>
+
+    <div id="container" class="row-fluid">
+        <div id="leftpane" class="span4" >
+            <h3>Choose source and destination</h3>
+            <div style="margin-top: 50px">
+                <form id="form" method="post" action="/route">{% csrf_token %}
+                    <div class="row-fluid" style="margin-left: 10px">
+                        <p class="span3"><b>Source: </b></p>
+                        <select id="source" name="source" class="span8">
+                            <option value="0">None</option>
+                            {% for cluster in clusters %}
+                                <option value="{{ cluster.cluster_no }}">{{ cluster.cluster_address }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="row-fluid" style="margin-left: 10px">
+                        <p class="span3"><b>Destination: </b></p>
+                        <select id="dest" name="dest" class="span8">
+                            <option value="0">None</option>
+                            {% for cluster in clusters %}
+                                <option value="{{ cluster.cluster_no }}">{{ cluster.cluster_address }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div id="error" style="color: red"></div>
+                    <input id="submit" type="submit" value="Show Route" class=" btn btn-info" style="margin-top: 20px">
+                </form>
+            </div>
+        </div>
+        <div id="map" class="span8">
+
+        </div>
+    </div>
 
     <script>
 
@@ -27,10 +87,30 @@
         {% for cluster in clusters %}
             var marker = L.marker([{{ cluster.cluster_loc.poi_lat }}, {{ cluster.cluster_loc.poi_lon }}]).addTo(map);
             marker.bindPopup("<p><b>Rank: </b>{{ cluster.rank }}<br><b>Name: </b>{{ cluster.cluster_address }}</p>");
-            marker.on('click', function(e){
-                e.openPopup();
+            marker.on('mouseover', function(e) {
+                e.target.openPopup();
+            });
+            marker.on('mouseout', function(e) {
+                e.target.closePopup();
             });
         {% endfor %}
+        $(document).ready(function() {
+            $("#submit").submit(function(e) {
+                alert("ok");
+                var source = $('source').val();
+                var dest = $('dest').val();
+                if(source=="0"||dest=="0") {
+                    $("#error").innerHTML = "<p>Either source or destination or both not chosen.</p>"
+                    e.preventDefault();
+                }
+                else {
+                    var url = "/route" + source + "/" + dest;
+                    $("#form").attr("action", url);
+                }
+
+            });
+        });
+
 
     </script>
 
