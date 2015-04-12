@@ -46,11 +46,11 @@
         <div id="leftpane" class="span4" >
             <h3>Choose source and destination</h3>
             <div style="margin-top: 50px">
-                <form id="form" method="post" action="/route">{% csrf_token %}
+                <form id="form" method="post" action="/route" onsubmit="return validate()">{% csrf_token %}
                     <div class="row-fluid" style="margin-left: 10px">
                         <p class="span3"><b>Source: </b></p>
                         <select id="source" name="source" class="span8">
-                            <option value="0">None</option>
+                            <option selected value="0">None</option>
                             {% for cluster in clusters %}
                                 <option value="{{ cluster.cluster_no }}">{{ cluster.cluster_address }}</option>
                             {% endfor %}
@@ -59,12 +59,13 @@
                     <div class="row-fluid" style="margin-left: 10px">
                         <p class="span3"><b>Destination: </b></p>
                         <select id="dest" name="dest" class="span8">
-                            <option value="0">None</option>
+                            <option selected value="0">None</option>
                             {% for cluster in clusters %}
                                 <option value="{{ cluster.cluster_no }}">{{ cluster.cluster_address }}</option>
                             {% endfor %}
                         </select>
                     </div>
+                    <input id="city" name="city" type="hidden" value="{{ location }}">
                     <div id="error" style="color: red"></div>
                     <input id="submit" type="submit" value="Show Route" class=" btn btn-info" style="margin-top: 20px">
                 </form>
@@ -94,24 +95,27 @@
                 e.target.closePopup();
             });
         {% endfor %}
-        $(document).ready(function() {
-            $("#submit").submit(function(e) {
-                alert("ok");
-                var source = $('source').val();
-                var dest = $('dest').val();
-                if(source=="0"||dest=="0") {
-                    $("#error").innerHTML = "<p>Either source or destination or both not chosen.</p>"
-                    e.preventDefault();
-                }
-                else {
-                    var url = "/route" + source + "/" + dest;
-                    $("#form").attr("action", url);
-                }
 
-            });
-        });
+        function validate() {
 
-
+            var source = $('#source').val();
+            var dest = $('#dest').val();
+            if(source=="0"&&dest=="0") {
+                $("#error").html("<p>Choose source and destination.</p>");
+                return false;
+            }
+            if(source=="0") {
+                $("#error").html("<p>Choose source.</p>");
+                return false;
+            }
+            if(dest=="0") {
+                $("#error").html("<p>Choose destination.</p>");
+                return false;
+            }
+            return true;
+{#            var url = "/route" + source + "/" + dest;#}
+{#            $("#form").attr("action", url);#}
+        }
     </script>
 
 </body>

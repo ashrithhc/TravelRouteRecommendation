@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/static/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css" type="text/css"/>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-responsive.css" type="text/css"/>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-responsive.min.css" type="text/css"/>
+    <script src="/static/leaflet/leaflet.js"></script>
+    <script src="/static/leaflet/leaflet-src.js"></script>
+{#    <script src="/static/js/jquery-1.9.1.js"></script>#}
+    <script src="/static/js/jquery-1.11.2.min.js"></script>
+{#    <script src="/static/js/jquery-ui.js"></script>#}
+    <title>Landmarks represented as clusters</title>
+    <style>
+        #heading,#home {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #heading_container {
+            padding-top: 20px;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+            background-color: #3a5774;
+        }
+    </style>
+</head>
+<body style="text-align: center">
+    <div id="heading_container" class="row-fluid">
+        <div id="heading" class="span11">
+            <h2 style="color: #ffffcc">Landmark Extraction and Route Recommendation System</h2>
+        </div>
+        <div id="home" class="span1">
+            <h2><a class="btn btn-info" href="/">Home</a></h2>
+        </div>
+    </div>
+
+    <div style="margin-left: 50px;">
+        <h4>Sorry, there is no route available between {{ source }} and {{ destination }}.</h4>
+    </div>
+
+
+</body>
+</html>

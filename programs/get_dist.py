@@ -118,8 +118,9 @@ def check_nodes(location):
 		_way_data = db.way_data_6
 
 	# node_list = _node_data.find({'$and': [{'belongs_to_way' : {'$exists' : False} }, {'is_poi': True}]})
-	node_list = _node_data.find({'is_poi': True, 'location': location, 'belongs_to_way': {'$exists': False}})
+	node_list = _node_data.find({'is_poi': True, 'location': location, 'belongs_to_way': {'$exists': False}, 'closest_roads': {'$exists': False}})
 	for node in node_list:
+		# print node['node_id']
 		way1, dist1, way2, dist2 = get_two_roads(node['node_id'], node['lon_lat'], location)
 		#use way1, way2 to assign node to a particular way.
 		if dist1 and dist1 <= 0.005:

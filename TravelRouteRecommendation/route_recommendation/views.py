@@ -1,3 +1,5 @@
+from django.http.response import HttpResponsePermanentRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.http import HttpResponse
 import requests
@@ -75,7 +77,7 @@ def index(request):
 
 def extract_landmarks(request):
     if not request.POST:
-        return render(request, 'home.html')
+        return HttpResponseRedirect("/")
 
     location = request.POST.get('city')
 
@@ -152,10 +154,14 @@ def extract_landmarks(request):
 def get_route(request):
 
     if not request.POST:
-        return render(request, 'home.html')
+        return HttpResponseRedirect("/")
 
     source = request.POST.get('source')
     dest = request.POST.get('dest')
+    location = request.POST.get('location')
+
+    print source
+    print dest
 
     client = MongoClient()
     db = client.flickr
@@ -187,6 +193,8 @@ def get_route(request):
         node_dict[node['node_id']] = node['lon_lat']
 
     route = _routes.find_one({'source_cluster': source, 'dest_cluster': dest})
+    if not route:
+        return render(request, 'route_error.html', {'source': source_cluster['address'], 'destination': dest_cluster['address']})
     path = route['route']
     path_nodes = []
 
