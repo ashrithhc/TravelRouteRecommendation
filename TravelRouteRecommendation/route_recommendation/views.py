@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.http import HttpResponse
 import requests
+from django.views.decorators.csrf import csrf_protect
 from pymongo import MongoClient
 import xml.etree.ElementTree as ET
 from utilities import Bbox
@@ -158,10 +159,7 @@ def get_route(request):
 
     source = request.POST.get('source')
     dest = request.POST.get('dest')
-    location = request.POST.get('location')
-
-    print source
-    print dest
+    location = request.POST.get('city')
 
     client = MongoClient()
     db = client.flickr
@@ -212,4 +210,32 @@ def get_route(request):
     }
 
     client.close()
-    return render(request, 'route.html', {'source': source_node, 'dest': dest_node, 'path': path_nodes, 'map_center': map_center})
+    return render(request, 'route.html', {'source': source_node, 'dest': dest_node, 'path': path_nodes, 'map_center': map_center, 'location': location})
+
+
+def rate(request):
+    if not request.POST:
+        return HttpResponseRedirect("/")
+
+    client = MongoClient()
+    db = client.flickr
+    ratings = db.ratings
+
+    rating = request.POST.get('rating')
+    location = request.POST.get('location')
+
+    print rating
+    print location
+
+    rating = {
+        'location': location,
+        'rating': rating
+    }
+
+    ratings.insert(rating)
+
+    client.close()
+
+    return HttpResponse("Done")
+
+

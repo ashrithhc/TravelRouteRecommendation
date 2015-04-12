@@ -13,5 +13,6 @@ urlpatterns = patterns('',
     url(r'^landmarks$', views.extract_landmarks),
     # url(r'^landmarks/(?P<location>[0-9]+)$', views.extract_landmarks)
     # url(r'^route/(?P<source>.+)/(?P<dest>.+)$', views.get_route)
-    url(r'^route$', views.get_route)
+    url(r'^route$', views.get_route),
+    url(r'^rate$', views.rate)
 )

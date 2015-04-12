@@ -1,16 +1,20 @@
+{% csrf_token %}
+
 <!DOCTYPE html>
 <html>
 <head>
     <link rel="stylesheet" href="/static/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="/static/css/rating.css" type="text/css"/>
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css" type="text/css" />
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css" type="text/css"/>
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-responsive.css" type="text/css"/>
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-responsive.min.css" type="text/css"/>
     <script src="/static/leaflet/leaflet.js"></script>
     <script src="/static/leaflet/leaflet-src.js"></script>
-{#    <script src="/static/js/jquery-1.9.1.js"></script>#}
     <script src="/static/js/jquery-1.11.2.min.js"></script>
-{#    <script src="/static/js/jquery-ui.js"></script>#}
+    <script src="/static/js/csrf.js"></script>
+
+
     <title>Route between landmarks</title>
     <style>
         #container {
@@ -45,6 +49,26 @@
     <div id="container" class="row-fluid">
         <div id="leftpane" class="span3" >
             <h3>Please rate us!</h3>
+
+            <form id="form_rating" style="margin-left: 60px;" method="post">{% csrf_token %}
+                <div>
+                    <fieldset class="rating">
+                        <input type="radio" id="star5" name="rating" value="5" /><label for="star5" title="Rocks!">5 stars</label>
+                        <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="Pretty good">4 stars</label>
+                        <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="Meh">3 stars</label>
+                        <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="Kinda bad">2 stars</label>
+                        <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="Sucks big time">1 star</label>
+                    </fieldset>
+                </div>
+
+                <br/>
+                <input type="submit" style="margin-top: 60px; position: absolute; left: 120px" class="btn btn-small btn-info" value="Rate">
+            </form>
+
+            <div id="message"  style="margin-top: 25px;">
+
+            </div>
+
         </div>
         <div id="map" class="span9">
 
@@ -53,7 +77,6 @@
 
     <script>
 
-{#        var map = L.map('map').setView([-33.8744212, 151.2019859], 12);#}
         var map = L.map('map').setView([{{ map_center.latitude }}, {{ map_center.longitude }}], 12);
 
         L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -79,6 +102,25 @@
         });
 
         var route = L.polyline({{ path }}, {color: 'red', opacity: 0.75}).addTo(map);
+
+        $(document).ready(function() {
+            $('#form_rating').submit(function(e) {
+                e.preventDefault();
+                var rating = $('input[name=rating]:checked', '#form_rating').val();
+                $.ajax({
+                    type: "POST",
+                    url: "/rate",
+                    data: {
+                        'rating': rating,
+                        'location': {{ location }}
+                    }
+                }).done(function (data) {
+                    $('#message').html("<h5>Thank you for rating.</h5>");
+                });
+
+                return false;
+            });
+        });
 
     </script>
 
