@@ -4,3 +4,4 @@ TravelRouteRecommendation/TravelRouteRecommendation/*.pyc
 *\.osm\.bz2
 reading_material
 */index_ways_*
+*.pkl

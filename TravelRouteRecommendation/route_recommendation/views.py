@@ -86,6 +86,7 @@ def extract_landmarks(request):
     db = client.flickr
     clustersCollection = db.clusters
     photosCollection = db.photos
+    reviewsCollection = db.reviews
 
     pattern = "^" + str(location) + ".*$"
     regex = re.compile(pattern)
@@ -116,27 +117,44 @@ def extract_landmarks(request):
             'poi_lon': _cluster['poi_lon']
         }
         cluster_address = _cluster['address']
-        cluster_points = []
-        points = [point for point in photosCollection.find({"cluster_info": cluster_no})]
+        # cluster_points = []
+        # points = [point for point in photosCollection.find({"cluster_info": cluster_no})]
 
-        if not points:
-            continue
+        # if not points:
+        #     continue
+        #
+        # for point in points:
+        #     cluster_point = {
+        #         'photo_id': point['photo_id'],
+        #         'latitude': float(point['latitude']),
+        #         'longitude': float(point['longitude']),
+        #     }
+        #     cluster_points.append(cluster_point)
 
-        for point in points:
-            cluster_point = {
-                'photo_id': point['photo_id'],
-                'latitude': float(point['latitude']),
-                'longitude': float(point['longitude']),
-            }
-            cluster_points.append(cluster_point)
+        review = reviewsCollection.find_one({'cluster_id': cluster_no})
+        photoExists = 0
+        if review:
+            rating = review['overall_rating']
+            place_review = review.get('best_review')
+            if not place_review:
+                place_review = 'Review not available'
+            if review.get('photo_exists', None):
+                photoExists = 1
+        else:
+            rating = 'Not Available'
+            place_review = 'Review not available'
+
 
         cluster = {
             'cluster_no': cluster_no,
             'cluster_loc': cluster_loc,
-            'cluster_points': cluster_points,
+            # 'cluster_points': cluster_points,
             'color': colors[(i+1)%56],
             'cluster_address': cluster_address,
-            'rank': _cluster['rank']
+            'rank': _cluster['rank'],
+            'review': place_review,
+            'rating': rating,
+            'photo_exists': photoExists
         }
         lat_center += float(_cluster['poi_lat'])
         lon_center += float(_cluster['poi_lon'])
@@ -166,6 +184,7 @@ def get_route(request):
     _routes = db.routes
     _node_data = db.node_data
     _clusters = db.clusters
+    reviewsCollection = db.reviews
 
     source_cluster = _clusters.find_one({'cluster_id': source})
     dest_cluster = _clusters.find_one({'cluster_id': dest})
@@ -173,15 +192,52 @@ def get_route(request):
     _source_node = _node_data.find_one({'node_id': source_cluster['poi_id']})
     _dest_node = _node_data.find_one({'node_id': dest_cluster['poi_id']})
 
+    review = reviewsCollection.find_one({'cluster_id': source})
+    photoExists = 0
+    if review:
+        rating = review['overall_rating']
+        place_review = review.get('best_review')
+        if not place_review:
+            place_review = 'Review not available'
+        if review.get('photo_exists', None):
+            photoExists = 1
+    else:
+        rating = 'Not Available'
+        place_review = 'Review not available'
+
     source_node = {
         'latitude': _source_node['lon_lat'][1],
         'longitude': _source_node['lon_lat'][0],
-        'name': source_cluster['address']
+        'name': source_cluster['address'],
+        'photo_exists': photoExists,
+        'review': place_review,
+        'rating': rating,
+        'cluster_no': source,
+        'rank': source_cluster['rank']
     }
+
+    review = reviewsCollection.find_one({'cluster_id': dest})
+    photoExists = 0
+    if review:
+        rating = review['overall_rating']
+        place_review = review.get('best_review')
+        if not place_review:
+            place_review = 'Review not available'
+        if review.get('photo_exists', None):
+            photoExists = 1
+    else:
+        rating = 'Not Available'
+        place_review = 'Review not available'
+
     dest_node = {
         'latitude': _dest_node['lon_lat'][1],
         'longitude': _dest_node['lon_lat'][0],
-        'name': dest_cluster['address']
+        'name': dest_cluster['address'],
+        'photo_exists': photoExists,
+        'review': place_review,
+        'rating': rating,
+        'cluster_no': dest,
+        'rank': dest_cluster['rank']
     }
 
     node_list = _node_data.find({'location': int(source[0])})
@@ -223,13 +279,14 @@ def rate(request):
 
     rating = request.POST.get('rating')
     location = request.POST.get('location')
-
-    print rating
-    print location
+    source = request.POST.get('source')
+    destination = request.POST.get('destination')
 
     rating = {
         'location': location,
-        'rating': rating
+        'rating': rating,
+        'source': source,
+        'destination': destination
     }
 
     ratings.insert(rating)

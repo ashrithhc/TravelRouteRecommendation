@@ -2,4 +2,6 @@ https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.854583
 
 https://maps.googleapis.com/maps/api/place/textsearch/json?query=STC+Wharf+Theatres&key=AIzaSyA-dOvEnfjECFZDAKRSZQseqhowW7Z1VWk
 
-https://maps.googleapis.com/maps/api/place/details/json?placeid=ChIJDTRn7VyuEmsRkSFggW9wNIs&key=AIzaSyA-dOvEnfjECFZDAKRSZQseqhowW7Z1VWk&extensions=review_summary
+https://maps.googleapis.com/maps/api/place/details/json?placeid=ChIJ_fiGNyN-j4AR7_9CgSxmaX0&key=AIzaSyDlP4O95tHjiwENoY1t-6kdXZ426Ic6q_8
+
+https://maps.googleapis.com/maps/api/place/photo?maxwidth=1600&photoreference=CnRnAAAArvNRL1qzjGkzOaL6R8Z5Tg4ucwxBVT8uMYvVRe9NT_FtZt3YwSRmNXfrNeHrg3qX1itkpihkLne-oI3zontvnykZMBvqNXUW2HSgOXndcar_jHP6NqOWWCjUXT7damRIhixrlLP3-2gYasJ8Tgw-aRIQAQi_IuzRLVz7h8RNWN4CBhoUGojIaGkSWfZN-xZLd48ZD5a9pPQ&key=AIzaSyDlP4O95tHjiwENoY1t-6kdXZ426Ic6q_8

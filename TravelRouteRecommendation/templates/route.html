@@ -78,6 +78,7 @@
     <script>
 
         var map = L.map('map').setView([{{ map_center.latitude }}, {{ map_center.longitude }}], 12);
+        var marker_to_content = {};
 
         L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxzoom: 30,
@@ -85,21 +86,58 @@
         }).addTo(map);
 
         var src_marker = L.marker([{{ source.latitude }}, {{ source.longitude }}]).addTo(map);
-        src_marker.bindPopup("<p><b>Name: </b>{{ source.name }}</p>");
-        src_marker.on('mouseover', function(e){
-            e.target.openPopup();
+
+        if({{ source.photo_exists }}) {
+            var html_content = "<div style='text-align: center;' ><h3>{{ source.name }}</h3><p style='margin-top: 20px'><b>Rank: </b>{{ source.rank }}</p><div style='margin-top: 20px' class='row-fluid'><div class='span6'><p><b>Review: </b>{{ source.review }}</p><p><b>Rating: </b>{{ source.rating }}</p></div><div class='span6'><img src='/static/places/{{ source.cluster_no }}.jpg' height='300px' width='300px' alt='Image not available'></div></div></div>";
+        }
+        else {
+            var html_content = "<div style='text-align: center;'><h3>{{ source.name }}</h3><p style='margin-top: 20px'><b>Rank: </b>{{ source.rank }}</p><p style='margin-top: 20px'><b>Review: </b>{{ source.review }}</p><p><b>Rating: </b>{{ source.rating }}</p></div>";
+        }
+
+        marker_to_content[src_marker._leaflet_id] = html_content;
+
+        var popup = L.popup({maxWidth: 700, maxheight: 700});
+
+        src_marker.on('click', function(e) {
+            popup.setContent(marker_to_content[e.target._leaflet_id]);
+            popup.setLatLng(e.latlng);
+            popup.openOn(map);
         });
-        src_marker.on('mouseout', function(e){
-            e.target.closePopup();
-        });
+
+{#        src_marker.bindPopup("<p><b>Name: </b>{{ source.name }}</p>");#}
+{#        src_marker.on('mouseover', function(e){#}
+{#            e.target.openPopup();#}
+{#        });#}
+{#        src_marker.on('mouseout', function(e){#}
+{#            e.target.closePopup();#}
+{#        });#}
         var dest_marker = L.marker([{{ dest.latitude }}, {{ dest.longitude }}]).addTo(map);
-        dest_marker.bindPopup("<p><b>Name: </b>{{ dest.name }}</p>");
-        dest_marker.on('mouseover', function(e){
-            e.target.openPopup();
+
+        if({{ dest.photo_exists }}) {
+            var html_content = "<div style='text-align: center;' ><h3>{{ dest.name }}</h3><p style='margin-top: 20px'><b>Rank: </b>{{ dest.rank }}</p><div style='margin-top: 20px' class='row-fluid'><div class='span6'><p><b>Review: </b>{{ dest.review }}</p><p><b>Rating: </b>{{ dest.rating }}</p></div><div class='span6'><img src='/static/places/{{ dest.cluster_no }}.jpg' height='300px' width='300px' alt='Image not available'></div></div></div>";
+        }
+        else {
+            var html_content = "<div style='text-align: center;'><h3>{{ dest.name }}</h3><p style='margin-top: 20px'><b>Rank: </b>{{ dest.rank }}</p><p style='margin-top: 20px'><b>Review: </b>{{ dest.review }}</p><p><b>Rating: </b>{{ dest.rating }}</p></div>";
+        }
+
+        marker_to_content[dest_marker._leaflet_id] = html_content;
+
+        var popup = L.popup({maxWidth: 700, maxheight: 700});
+
+        dest_marker.on('click', function(e) {
+            popup.setContent(marker_to_content[e.target._leaflet_id]);
+            popup.setLatLng(e.latlng);
+            popup.openOn(map);
         });
-        dest_marker.on('mouseout', function(e){
-            e.target.closePopup();
-        });
+
+
+{#        dest_marker.bindPopup("<p><b>Name: </b>{{ dest.name }}</p>");#}
+{#        dest_marker.on('mouseover', function(e){#}
+{#            e.target.openPopup();#}
+{#        });#}
+{#        dest_marker.on('mouseout', function(e){#}
+{#            e.target.closePopup();#}
+{#        });#}
 
         var route = L.polyline({{ path }}, {color: 'red', opacity: 0.75}).addTo(map);
 
@@ -112,7 +150,9 @@
                     url: "/rate",
                     data: {
                         'rating': rating,
-                        'location': {{ location }}
+                        'location': {{ location }},
+                        'source': {{ source.cluster_no }},
+                        'destination': {{ dest.cluster_no }}
                     }
                 }).done(function (data) {
                     $('#message').html("<h5>Thank you for rating.</h5>");

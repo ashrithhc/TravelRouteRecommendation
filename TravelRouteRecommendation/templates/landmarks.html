@@ -15,7 +15,7 @@
     <style>
         #container {
             height: 500px;
-            width: 98.5%;
+            width: 99%;
         }
         #leftpane, #map {
             height: 100%;
@@ -43,7 +43,7 @@
     </div>
 
     <div id="container" class="row-fluid">
-        <div id="leftpane" class="span4" >
+        <div id="leftpane" class="span3" >
             <h3>Choose source and destination</h3>
             <div style="margin-top: 50px">
                 <form id="form" method="post" action="/route" onsubmit="return validate()">{% csrf_token %}
@@ -71,7 +71,7 @@
                 </form>
             </div>
         </div>
-        <div id="map" class="span8">
+        <div id="map" class="span9">
 
         </div>
     </div>
@@ -85,14 +85,25 @@
             attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a>'
         }).addTo(map);
 
+        var marker_to_content = {};
+
         {% for cluster in clusters %}
             var marker = L.marker([{{ cluster.cluster_loc.poi_lat }}, {{ cluster.cluster_loc.poi_lon }}]).addTo(map);
-            marker.bindPopup("<p><b>Rank: </b>{{ cluster.rank }}<br><b>Name: </b>{{ cluster.cluster_address }}</p>");
-            marker.on('mouseover', function(e) {
-                e.target.openPopup();
-            });
-            marker.on('mouseout', function(e) {
-                e.target.closePopup();
+            if({{ cluster.photo_exists }}) {
+                var html_content = "<div style='text-align: center;' ><h3>{{ cluster.cluster_address }}</h3><p style='margin-top: 20px'><b>Rank: </b>{{ cluster.rank }}</p><div style='margin-top: 20px' class='row-fluid'><div class='span6'><p><b>Review: </b>{{ cluster.review }}</p><p><b>Rating: </b>{{ cluster.rating }}</p></div><div class='span6'><img src='/static/places/{{ cluster.cluster_no }}.jpg' height='300px' width='300px' alt='Image not available'></div></div></div>";
+            }
+            else {
+                var html_content = "<div style='text-align: center;'><h3>{{ cluster.cluster_address }}</h3><p style='margin-top: 20px'><b>Rank: </b>{{ cluster.rank }}</p><p style='margin-top: 20px'><b>Review: </b>{{ cluster.review }}</p><p><b>Rating: </b>{{ cluster.rating }}</p></div>";
+            }
+
+            marker_to_content[marker._leaflet_id] = html_content;
+
+            var popup = L.popup({maxWidth: 700, maxheight: 700});
+
+            marker.on('click', function(e) {
+                popup.setContent(marker_to_content[e.target._leaflet_id]);
+                popup.setLatLng(e.latlng);
+                popup.openOn(map);
             });
         {% endfor %}
 

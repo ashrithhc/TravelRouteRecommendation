@@ -221,8 +221,8 @@ def classify(training_set, class_labels, location):
 
 	pickle.dump(data_set, data_set_file, -1)
 
-	data_set_file = open('data_set_file.pkl', 'rb')
-	data_set = pickle.load(data_set_file)
+	# data_set_file = open('data_set_file.pkl', 'rb')
+	# data_set = pickle.load(data_set_file)
 
 	result_labels = classifier.predict(data_set)
 
@@ -247,7 +247,7 @@ def classify(training_set, class_labels, location):
 
 if __name__=='__main__':
 
-	location = 1
+	location = 2
 	training_set, class_labels = create_training_set(location)
 	training_set = normalize(training_set)
 
