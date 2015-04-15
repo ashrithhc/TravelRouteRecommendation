@@ -127,7 +127,7 @@ def get_nodes(node_id, location):
 
 if __name__ == '__main__':
 
-	location = 1
+	location = 2
 
 	client = MongoClient()
 	db = client.flickr

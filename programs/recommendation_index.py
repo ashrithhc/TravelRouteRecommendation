@@ -77,6 +77,6 @@ def get_poi_usability(location):
 
 
 if __name__ == '__main__':
-	location = 1
+	location = 2
 	assign_pois(location)
 	get_poi_usability(location)

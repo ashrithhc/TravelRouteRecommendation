@@ -8,9 +8,10 @@
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-responsive.min.css" type="text/css"/>
     <script src="/static/leaflet/leaflet.js"></script>
     <script src="/static/leaflet/leaflet-src.js"></script>
-{#    <script src="/static/js/jquery-1.9.1.js"></script>#}
     <script src="/static/js/jquery-1.11.2.min.js"></script>
-{#    <script src="/static/js/jquery-ui.js"></script>#}
+    <script src="/static/js/csrf.js"></script>
+
+
     <title>Landmarks represented as clusters</title>
     <style>
         #container {
@@ -123,9 +124,11 @@
                 $("#error").html("<p>Choose destination.</p>");
                 return false;
             }
+            if(source==dest) {
+                $("#error").html("<p>Source and destination are the same.</p>");
+                return false;
+            }
             return true;
-{#            var url = "/route" + source + "/" + dest;#}
-{#            $("#form").attr("action", url);#}
         }
     </script>
 

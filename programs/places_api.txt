@@ -1,6 +1,6 @@
 https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.854583,151.2055604&radius=500&name=STC+Wharf+Theatres&key=AIzaSyA-dOvEnfjECFZDAKRSZQseqhowW7Z1VWk
 
-https://maps.googleapis.com/maps/api/place/textsearch/json?query=STC+Wharf+Theatres&key=AIzaSyA-dOvEnfjECFZDAKRSZQseqhowW7Z1VWk
+https://maps.googleapis.com/maps/api/place/textsearch/json?query=STC+Wharf+Theatres&key=AIzaSyDlP4O95tHjiwENoY1t-6kdXZ426Ic6q_8
 
 https://maps.googleapis.com/maps/api/place/details/json?placeid=ChIJ_fiGNyN-j4AR7_9CgSxmaX0&key=AIzaSyDlP4O95tHjiwENoY1t-6kdXZ426Ic6q_8
 

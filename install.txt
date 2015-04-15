@@ -2,6 +2,10 @@
 2. Rtree - requires libspatial index
 3. imposm.parser
 4. overpy
+5. overpass
+6. networkx
+7. scikit
+8. nltk
 
 
 

@@ -28,11 +28,18 @@ def create_training_set(location):
 		_node_data = db.node_data_6
 		_way_data = db.way_data_6
 
-	node_list = _node_data.find({'belongs_to_way': {'$exists' : True}, 'location': location })
+	way_dict = {}
+	way_list = _way_data.find({'location': location, 'n_poi_1': {'$exists': True}})
+	for way in way_list:
+		way_dict[way['way_id']] = way
+
+	node_list = list(_node_data.find({'belongs_to_way': {'$exists' : True}, 'location': location }))
+	print "No of pois to be trained: ", len(node_list)
 
 	training_set = []
 	class_labels = []
 
+	count = 0
 	for node in node_list:
 		dist1 = dist2 = n_poi_11 = n_poi_21 = n_poi_12 = n_poi_22 = n_poi_13 = n_poi_23 = 0.0
 		closest_roads = node.get('closest_roads', None)
@@ -45,7 +52,9 @@ def create_training_set(location):
 				dist1 = closest_roads['first_distance']
 				dist2 = closest_roads['second_distance']
 
-				first_road = _way_data.find_one({'way_id': closest_roads['first_road'], 'location': location})
+				first_road = way_dict.get(closest_roads['first_road'], None)
+				if not first_road:
+					first_road = _way_data.find_one({'way_id': closest_roads['first_road'], 'location': location})
 				if first_road.get('n_poi_1', None):
 					n_poi_11 = first_road['n_poi_1']
 					n_poi_12 = first_road['n_poi_2']
@@ -56,7 +65,9 @@ def create_training_set(location):
 					n_poi_13 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '3', 'location': location}).count()
 					_way_data.update({'way_id': closest_roads['first_road'], 'location': location}, {'$set': {'n_poi_1': n_poi_11, 'n_poi_2': n_poi_12, 'n_poi_3': n_poi_13}})
 
-				second_road = _way_data.find_one({'way_id': closest_roads['second_road'], 'location': location})
+				second_road = way_dict.get(closest_roads['second_road'], None)
+				if not second_road:
+					second_road = _way_data.find_one({'way_id': closest_roads['second_road'], 'location': location})
 				if second_road.get('n_poi_1', None):
 					n_poi_21 = second_road['n_poi_1']
 					n_poi_22 = second_road['n_poi_2']
@@ -70,7 +81,9 @@ def create_training_set(location):
 				class_labels.append(1)
 				dist1 = closest_roads['first_distance']
 
-				first_road = _way_data.find_one({'way_id': closest_roads['first_road'], 'location': location})
+				first_road = way_dict.get(closest_roads['first_road'], None)
+				if not first_road:
+					first_road = _way_data.find_one({'way_id': closest_roads['first_road'], 'location': location})
 				if first_road.get('n_poi_1', None):
 					n_poi_11 = first_road['n_poi_1']
 					n_poi_12 = first_road['n_poi_2']
@@ -87,7 +100,11 @@ def create_training_set(location):
 		features = map(float, features)
 
 		training_set.append(features)
-
+		count += 1
+		if count==100:
+			print count
+			count = 0
+	# node_list.close()
 	client.close()
 
 	return training_set, class_labels
@@ -117,18 +134,26 @@ def create_data_set(location):
 		_node_data = db.node_data_6
 		_way_data = db.way_data_6
 
-	node_list = _node_data.find({'is_poi': True, 'belongs_to_way': {'$exists': False}, 'closest_roads': {'$exists': True}, 'location': location})
+	way_dict = {}
+	way_list = _way_data.find({'location': location, 'n_poi_1': {'$exists': True}})
+	for way in way_list:
+		way_dict[way['way_id']] = way
 
+	node_list = list(_node_data.find({'is_poi': True, 'belongs_to_way': {'$exists': False}, 'closest_roads': {'$exists': True}, 'location': location}))
+	print "No of pois to be classified: ", len(node_list)
 	data_set = []
 	nodes_order = []
 
+	count = 0
 	for node in node_list:
 		dist1 = dist2 = n_poi_11 = n_poi_21 = n_poi_12 = n_poi_22 = n_poi_13 = n_poi_23 = 0.0
 		closest_roads = node.get('closest_roads', None)
 		dist1 = closest_roads['first_distance']
 		dist2 = closest_roads['second_distance']
 
-		first_road = _way_data.find_one({'way_id': closest_roads['first_road'], 'location': location})
+		first_road = way_dict.get(closest_roads['first_road'], None)
+		if not first_road:
+			first_road = _way_data.find_one({'way_id': closest_roads['first_road'], 'location': location})
 		if first_road.get('n_poi_1', None):
 			n_poi_11 = first_road['n_poi_1']
 			n_poi_12 = first_road['n_poi_2']
@@ -139,7 +164,9 @@ def create_data_set(location):
 			n_poi_13 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '3', 'location': location}).count()
 			_way_data.update({'way_id': closest_roads['first_road'], 'location': location}, {'$set': {'n_poi_1': n_poi_11, 'n_poi_2': n_poi_12, 'n_poi_3': n_poi_13}})
 
-		second_road = _way_data.find_one({'way_id': closest_roads['second_road'], 'location': location})
+		second_road = way_dict.get(closest_roads['second_road'], None)
+		if not second_road:
+			second_road = _way_data.find_one({'way_id': closest_roads['second_road'], 'location': location})
 		if second_road.get('n_poi_1', None):
 			n_poi_21 = second_road['n_poi_1']
 			n_poi_22 = second_road['n_poi_2']
@@ -155,7 +182,11 @@ def create_data_set(location):
 
 		nodes_order.append(node['node_id'])
 		data_set.append(features)
-
+		count += 1
+		if count==500:
+			print count
+			count = 0
+	# node_list.close()
 	client.close()
 
 	return data_set, nodes_order
@@ -216,6 +247,7 @@ def classify(training_set, class_labels, location):
 	classifier = SVC(cache_size=500)
 	classifier.fit(training_set, class_labels)
 
+	print "creating data set"
 	data_set, nodes_order = create_data_set(location)
 	data_set = normalize(data_set)
 
@@ -223,7 +255,7 @@ def classify(training_set, class_labels, location):
 
 	# data_set_file = open('data_set_file.pkl', 'rb')
 	# data_set = pickle.load(data_set_file)
-
+	print "Classifying"
 	result_labels = classifier.predict(data_set)
 
 	print ''.join(map(str, result_labels))
@@ -248,11 +280,12 @@ def classify(training_set, class_labels, location):
 if __name__=='__main__':
 
 	location = 2
+	print "creating training set"
 	training_set, class_labels = create_training_set(location)
 	training_set = normalize(training_set)
 
-	# training_set_file = open('training_set_file.pkl', 'rb')
-	# class_labels_file = open('class_labels_file.pkl', 'rb')
+	# training_set_file = open('training_set_file_2.pkl', 'rb')
+	# class_labels_file = open('class_labels_file_2.pkl', 'rb')
 	
 	# training_set = pickle.load(training_set_file)
 	# class_labels = pickle.load(class_labels_file)

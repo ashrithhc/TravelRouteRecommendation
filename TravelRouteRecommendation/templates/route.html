@@ -47,10 +47,51 @@
     </div>
 
     <div id="container" class="row-fluid">
-        <div id="leftpane" class="span3" >
-            <h3>Please rate us!</h3>
+        <div id="leftpane" class="span4" >
+            <h4>Choose source and destination</h4>
+            <div style="margin-top: 20px">
+                <form id="form" method="post" action="/route" onsubmit="return validate()">{% csrf_token %}
+                    <div class="row-fluid" style="margin-left: 10px">
+                        <p class="span3"><b>Source: </b></p>
+                        <select id="source" name="source" class="span8">
+                            <option selected value="0">None</option>
+                            {% for cluster in clusters %}
+                                <option value="{{ cluster.cluster_no }}">{{ cluster.cluster_address }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="row-fluid" style="margin-left: 10px">
+                        <p class="span3"><b>Destination: </b></p>
+                        <select id="dest" name="dest" class="span8">
+                            <option selected value="0">None</option>
+                            {% for cluster in clusters %}
+                                <option value="{{ cluster.cluster_no }}">{{ cluster.cluster_address }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <input id="city" name="city" type="hidden" value="{{ location }}">
+                    <div id="error" style="color: red"></div>
+                    <input id="submit" type="submit" value="Show Route" class=" btn btn-info" style="margin-top: 20px">
+                </form>
+            </div>
+            <br/>
+            <div>
+                <h4>Other similar destinations</h4>
+                {% if similar_destinations %}
+                    {% for dest in similar_destinations %}
+                        <ul style="list-style-type: none">
+                            <li>{{ dest.cluster_address }}</li>
+                        </ul>
+                    {% endfor %}
+                {% else %}
+                    <p>None.</p>
+                {% endif %}
+            </div>
 
-            <form id="form_rating" style="margin-left: 60px;" method="post">{% csrf_token %}
+            <br/>
+            <h4>Please rate us!</h4>
+
+            <form id="form_rating" style="margin-left: 120px;" method="post">{% csrf_token %}
                 <div>
                     <fieldset class="rating">
                         <input type="radio" id="star5" name="rating" value="5" /><label for="star5" title="Rocks!">5 stars</label>
@@ -60,17 +101,16 @@
                         <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="Sucks big time">1 star</label>
                     </fieldset>
                 </div>
-
-                <br/>
-                <input type="submit" style="margin-top: 60px; position: absolute; left: 120px" class="btn btn-small btn-info" value="Rate">
+                <input type="submit" style="margin-top: 90px; position: absolute; left: 180px" class="btn btn-small btn-info" value="Rate">
             </form>
 
-            <div id="message"  style="margin-top: 25px;">
+            <div id="message"  style="margin-top: 25px; position: absolute; left: 140px">
 
             </div>
 
+
         </div>
-        <div id="map" class="span9">
+        <div id="map" class="span8">
 
         </div>
     </div>
@@ -86,16 +126,13 @@
         }).addTo(map);
 
         var src_marker = L.marker([{{ source.latitude }}, {{ source.longitude }}]).addTo(map);
-
         if({{ source.photo_exists }}) {
             var html_content = "<div style='text-align: center;' ><h3>{{ source.name }}</h3><p style='margin-top: 20px'><b>Rank: </b>{{ source.rank }}</p><div style='margin-top: 20px' class='row-fluid'><div class='span6'><p><b>Review: </b>{{ source.review }}</p><p><b>Rating: </b>{{ source.rating }}</p></div><div class='span6'><img src='/static/places/{{ source.cluster_no }}.jpg' height='300px' width='300px' alt='Image not available'></div></div></div>";
         }
         else {
             var html_content = "<div style='text-align: center;'><h3>{{ source.name }}</h3><p style='margin-top: 20px'><b>Rank: </b>{{ source.rank }}</p><p style='margin-top: 20px'><b>Review: </b>{{ source.review }}</p><p><b>Rating: </b>{{ source.rating }}</p></div>";
         }
-
         marker_to_content[src_marker._leaflet_id] = html_content;
-
         var popup = L.popup({maxWidth: 700, maxheight: 700});
 
         src_marker.on('click', function(e) {
@@ -104,24 +141,14 @@
             popup.openOn(map);
         });
 
-{#        src_marker.bindPopup("<p><b>Name: </b>{{ source.name }}</p>");#}
-{#        src_marker.on('mouseover', function(e){#}
-{#            e.target.openPopup();#}
-{#        });#}
-{#        src_marker.on('mouseout', function(e){#}
-{#            e.target.closePopup();#}
-{#        });#}
         var dest_marker = L.marker([{{ dest.latitude }}, {{ dest.longitude }}]).addTo(map);
-
         if({{ dest.photo_exists }}) {
             var html_content = "<div style='text-align: center;' ><h3>{{ dest.name }}</h3><p style='margin-top: 20px'><b>Rank: </b>{{ dest.rank }}</p><div style='margin-top: 20px' class='row-fluid'><div class='span6'><p><b>Review: </b>{{ dest.review }}</p><p><b>Rating: </b>{{ dest.rating }}</p></div><div class='span6'><img src='/static/places/{{ dest.cluster_no }}.jpg' height='300px' width='300px' alt='Image not available'></div></div></div>";
         }
         else {
             var html_content = "<div style='text-align: center;'><h3>{{ dest.name }}</h3><p style='margin-top: 20px'><b>Rank: </b>{{ dest.rank }}</p><p style='margin-top: 20px'><b>Review: </b>{{ dest.review }}</p><p><b>Rating: </b>{{ dest.rating }}</p></div>";
         }
-
         marker_to_content[dest_marker._leaflet_id] = html_content;
-
         var popup = L.popup({maxWidth: 700, maxheight: 700});
 
         dest_marker.on('click', function(e) {
@@ -130,16 +157,30 @@
             popup.openOn(map);
         });
 
-
-{#        dest_marker.bindPopup("<p><b>Name: </b>{{ dest.name }}</p>");#}
-{#        dest_marker.on('mouseover', function(e){#}
-{#            e.target.openPopup();#}
-{#        });#}
-{#        dest_marker.on('mouseout', function(e){#}
-{#            e.target.closePopup();#}
-{#        });#}
-
         var route = L.polyline({{ path }}, {color: 'red', opacity: 0.75}).addTo(map);
+
+        function validate() {
+
+            var source = $('#source').val();
+            var dest = $('#dest').val();
+            if(source=="0"&&dest=="0") {
+                $("#error").html("<p>Choose source and destination.</p>");
+                return false;
+            }
+            if(source=="0") {
+                $("#error").html("<p>Choose source.</p>");
+                return false;
+            }
+            if(dest=="0") {
+                $("#error").html("<p>Choose destination.</p>");
+                return false;
+            }
+            if(source==dest) {
+                $("#error").html("<p>Source and destination are the same.</p>");
+                return false;
+            }
+            return true;
+        }
 
         $(document).ready(function() {
             $('#form_rating').submit(function(e) {
