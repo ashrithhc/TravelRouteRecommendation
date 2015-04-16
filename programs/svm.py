@@ -7,8 +7,6 @@ import pickle
 def create_training_set(location):
 	client = MongoClient()
 	db = client.flickr
-	# _way_data = db.way_data
-	# _node_data = db.node_data
 	if location==1:
 		_node_data = db.node_data
 		_way_data = db.way_data
@@ -39,7 +37,18 @@ def create_training_set(location):
 	training_set = []
 	class_labels = []
 
-	count = 0
+	way_n_poi_dict = {}
+
+	for node in node_list:
+		belongs_to_way = node['belongs_to_way']
+		if way_n_poi_dict.get(belongs_to_way, None) is None:
+			way_n_poi_dict[belongs_to_way] = {
+				'1': [],
+				'2': [],
+				'3': []
+			}
+		way_n_poi_dict[belongs_to_way][node['category']].append(node)
+
 	for node in node_list:
 		dist1 = dist2 = n_poi_11 = n_poi_21 = n_poi_12 = n_poi_22 = n_poi_13 = n_poi_23 = 0.0
 		closest_roads = node.get('closest_roads', None)
@@ -53,46 +62,55 @@ def create_training_set(location):
 				dist2 = closest_roads['second_distance']
 
 				first_road = way_dict.get(closest_roads['first_road'], None)
-				if not first_road:
-					first_road = _way_data.find_one({'way_id': closest_roads['first_road'], 'location': location})
-				if first_road.get('n_poi_1', None):
+				
+				if first_road and first_road.get('n_poi_1', None) is not None:
 					n_poi_11 = first_road['n_poi_1']
 					n_poi_12 = first_road['n_poi_2']
 					n_poi_13 = first_road['n_poi_3']
 				else:
-					n_poi_11 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '1', 'location': location}).count()
-					n_poi_12 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '2', 'location': location}).count()
-					n_poi_13 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '3', 'location': location}).count()
+					# n_poi_11 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '1', 'location': location}).count()
+					# n_poi_12 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '2', 'location': location}).count()
+					# n_poi_13 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '3', 'location': location}).count()
+					n_poi_11 = len(way_n_poi_dict[closest_roads['first_road']]['1'])
+					n_poi_12 = len(way_n_poi_dict[closest_roads['first_road']]['2'])
+					n_poi_13 = len(way_n_poi_dict[closest_roads['first_road']]['3'])
 					_way_data.update({'way_id': closest_roads['first_road'], 'location': location}, {'$set': {'n_poi_1': n_poi_11, 'n_poi_2': n_poi_12, 'n_poi_3': n_poi_13}})
+					way_dict[closest_roads['first_road']] = {'n_poi_1': n_poi_11, 'n_poi_2': n_poi_12, 'n_poi_3': n_poi_13}
 
 				second_road = way_dict.get(closest_roads['second_road'], None)
-				if not second_road:
-					second_road = _way_data.find_one({'way_id': closest_roads['second_road'], 'location': location})
-				if second_road.get('n_poi_1', None):
+				
+				if second_road and second_road.get('n_poi_1', None) is not None:
 					n_poi_21 = second_road['n_poi_1']
 					n_poi_22 = second_road['n_poi_2']
 					n_poi_23 = second_road['n_poi_3']
 				else:
-					n_poi_21 = _node_data.find({'belongs_to_way': closest_roads['second_road'], 'category': '1', 'location': location}).count()
-					n_poi_22 = _node_data.find({'belongs_to_way': closest_roads['second_road'], 'category': '2', 'location': location}).count()
-					n_poi_23 = _node_data.find({'belongs_to_way': closest_roads['second_road'], 'category': '3', 'location': location}).count()
+					# n_poi_21 = _node_data.find({'belongs_to_way': closest_roads['second_road'], 'category': '1', 'location': location}).count()
+					# n_poi_22 = _node_data.find({'belongs_to_way': closest_roads['second_road'], 'category': '2', 'location': location}).count()
+					# n_poi_23 = _node_data.find({'belongs_to_way': closest_roads['second_road'], 'category': '3', 'location': location}).count()
+					n_poi_21 = len(way_n_poi_dict[closest_roads['second_road']]['1'])
+					n_poi_22 = len(way_n_poi_dict[closest_roads['second_road']]['2'])
+					n_poi_23 = len(way_n_poi_dict[closest_roads['second_road']]['3'])
 					_way_data.update({'way_id': closest_roads['second_road'], 'location': location}, {'$set': {'n_poi_1': n_poi_21, 'n_poi_2': n_poi_22, 'n_poi_3': n_poi_23}})			
+					way_dict[closest_roads['second_road']] = {'n_poi_1': n_poi_21, 'n_poi_2': n_poi_22, 'n_poi_3': n_poi_23}
 			else:
 				class_labels.append(1)
 				dist1 = closest_roads['first_distance']
 
 				first_road = way_dict.get(closest_roads['first_road'], None)
-				if not first_road:
-					first_road = _way_data.find_one({'way_id': closest_roads['first_road'], 'location': location})
-				if first_road.get('n_poi_1', None):
+				
+				if first_road and first_road.get('n_poi_1', None) is not None:
 					n_poi_11 = first_road['n_poi_1']
 					n_poi_12 = first_road['n_poi_2']
 					n_poi_13 = first_road['n_poi_3']
 				else:
-					n_poi_11 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '1', 'location': location}).count()
-					n_poi_12 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '2', 'location': location}).count()
-					n_poi_13 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '3', 'location': location}).count()
+					# n_poi_11 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '1', 'location': location}).count()
+					# n_poi_12 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '2', 'location': location}).count()
+					# n_poi_13 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '3', 'location': location}).count()
+					n_poi_11 = len(way_n_poi_dict[closest_roads['first_road']]['1'])
+					n_poi_12 = len(way_n_poi_dict[closest_roads['first_road']]['2'])
+					n_poi_13 = len(way_n_poi_dict[closest_roads['first_road']]['3'])
 					_way_data.update({'way_id': closest_roads['first_road'], 'location': location}, {'$set': {'n_poi_1': n_poi_11, 'n_poi_2': n_poi_12, 'n_poi_3': n_poi_13}})
+					way_dict[closest_roads['first_road']] = {'n_poi_1': n_poi_11, 'n_poi_2': n_poi_12, 'n_poi_3': n_poi_13}
 		else:
 			class_labels.append(1)
 
@@ -100,11 +118,6 @@ def create_training_set(location):
 		features = map(float, features)
 
 		training_set.append(features)
-		count += 1
-		if count==100:
-			print count
-			count = 0
-	# node_list.close()
 	client.close()
 
 	return training_set, class_labels
@@ -113,8 +126,7 @@ def create_training_set(location):
 def create_data_set(location):
 	client = MongoClient()
 	db = client.flickr
-	# _way_data = db.way_data
-	# _node_data = db.node_data
+
 	if location==1:
 		_node_data = db.node_data
 		_way_data = db.way_data
@@ -144,7 +156,26 @@ def create_data_set(location):
 	data_set = []
 	nodes_order = []
 
-	count = 0
+	way_n_poi_dict = {}
+
+	for node in node_list:
+		first_road = node['closest_roads']['first_road']
+		if way_n_poi_dict.get(first_road, None) is None:
+			way_n_poi_dict[first_road] = {
+				'1': [],
+				'2': [],
+				'3': []
+			}
+		way_n_poi_dict[first_road][node['category']].append(node)
+		second_road = node['closest_roads']['second_road']
+		if way_n_poi_dict.get(second_road, None) is None:
+			way_n_poi_dict[second_road] = {
+				'1': [],
+				'2': [],
+				'3': []
+			}
+		way_n_poi_dict[second_road][node['category']].append(node)
+
 	for node in node_list:
 		dist1 = dist2 = n_poi_11 = n_poi_21 = n_poi_12 = n_poi_22 = n_poi_13 = n_poi_23 = 0.0
 		closest_roads = node.get('closest_roads', None)
@@ -152,41 +183,43 @@ def create_data_set(location):
 		dist2 = closest_roads['second_distance']
 
 		first_road = way_dict.get(closest_roads['first_road'], None)
-		if not first_road:
-			first_road = _way_data.find_one({'way_id': closest_roads['first_road'], 'location': location})
-		if first_road.get('n_poi_1', None):
+		
+		if first_road and first_road.get('n_poi_1', None) is not None:
 			n_poi_11 = first_road['n_poi_1']
 			n_poi_12 = first_road['n_poi_2']
 			n_poi_13 = first_road['n_poi_3']
 		else:
-			n_poi_11 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '1', 'location': location}).count()
-			n_poi_12 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '2', 'location': location}).count()
-			n_poi_13 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '3', 'location': location}).count()
+			# n_poi_11 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '1', 'location': location}).count()
+			# n_poi_12 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '2', 'location': location}).count()
+			# n_poi_13 = _node_data.find({'belongs_to_way': closest_roads['first_road'], 'category': '3', 'location': location}).count()
+			n_poi_11 = len(way_n_poi_dict[closest_roads['first_road']]['1'])
+			n_poi_12 = len(way_n_poi_dict[closest_roads['first_road']]['2'])
+			n_poi_13 = len(way_n_poi_dict[closest_roads['first_road']]['3'])
 			_way_data.update({'way_id': closest_roads['first_road'], 'location': location}, {'$set': {'n_poi_1': n_poi_11, 'n_poi_2': n_poi_12, 'n_poi_3': n_poi_13}})
+			way_dict[closest_roads['first_road']] = {'n_poi_1': n_poi_11, 'n_poi_2': n_poi_12, 'n_poi_3': n_poi_13}
 
 		second_road = way_dict.get(closest_roads['second_road'], None)
-		if not second_road:
-			second_road = _way_data.find_one({'way_id': closest_roads['second_road'], 'location': location})
-		if second_road.get('n_poi_1', None):
+		
+		if second_road and second_road.get('n_poi_1', None) is not None:
 			n_poi_21 = second_road['n_poi_1']
 			n_poi_22 = second_road['n_poi_2']
 			n_poi_23 = second_road['n_poi_3']
 		else:
-			n_poi_21 = _node_data.find({'belongs_to_way': closest_roads['second_road'], 'category': '1', 'location': location}).count()
-			n_poi_22 = _node_data.find({'belongs_to_way': closest_roads['second_road'], 'category': '2', 'location': location}).count()
-			n_poi_23 = _node_data.find({'belongs_to_way': closest_roads['second_road'], 'category': '3', 'location': location}).count()
+			# n_poi_21 = _node_data.find({'belongs_to_way': closest_roads['second_road'], 'category': '1', 'location': location}).count()
+			# n_poi_22 = _node_data.find({'belongs_to_way': closest_roads['second_road'], 'category': '2', 'location': location}).count()
+			# n_poi_23 = _node_data.find({'belongs_to_way': closest_roads['second_road'], 'category': '3', 'location': location}).count()
+			n_poi_21 = len(way_n_poi_dict[closest_roads['second_road']]['1'])
+			n_poi_22 = len(way_n_poi_dict[closest_roads['second_road']]['2'])
+			n_poi_23 = len(way_n_poi_dict[closest_roads['second_road']]['3'])
 			_way_data.update({'way_id': closest_roads['second_road'], 'location': location}, {'$set': {'n_poi_1': n_poi_21, 'n_poi_2': n_poi_22, 'n_poi_3': n_poi_23}})
-		
+			way_dict[closest_roads['second_road']] = {'n_poi_1': n_poi_21, 'n_poi_2': n_poi_22, 'n_poi_3': n_poi_23}
+
 		features = [dist1, dist2, n_poi_11, n_poi_21, n_poi_12, n_poi_22, n_poi_13, n_poi_23]
 		features = map(float, features)
 
 		nodes_order.append(node['node_id'])
 		data_set.append(features)
-		count += 1
-		if count==500:
-			print count
-			count = 0
-	# node_list.close()
+		
 	client.close()
 
 	return data_set, nodes_order
@@ -212,8 +245,7 @@ def classify(training_set, class_labels, location):
 
 	client = MongoClient()
 	db = client.flickr
-	# _way_data = db.way_data
-	# _node_data = db.node_data
+
 	if location==1:
 		_node_data = db.node_data
 		_way_data = db.way_data
